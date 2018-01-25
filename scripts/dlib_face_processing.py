@@ -6,6 +6,8 @@ from skimage import io
 import rospy
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
+from geometry_msgs.msg import Point
+from ros_slopp.msg import Face
 
 import numpy as np
 from cv_bridge import CvBridge, CvBridgeError
@@ -17,6 +19,7 @@ import pickle
 import uuid
 
 import bz2
+import cv2
 
 """
 This script uses the various detectors in DLib to do
@@ -33,7 +36,8 @@ TODO:
   - detect if shapekeys are bad
   - improve recognition (clustering?)
 
-  - 
+  - gaze direction
+  https://github.com/severin-lemaignan/gazr
 
   - parametrize various features
   - output FPS to some topic
@@ -112,17 +116,20 @@ def analyzeImage(data):
     img = bridge.imgmsg_to_cv2(data, "rgb8")
     cnn_dets = dlib_cnn_detector(img, 1)
 
-    win.clear_overlay()
-    win.set_image(img)
+    #win.clear_overlay()
+    #win.set_image(img)
 
     #print("CNN nr of faces detected: {}".format(len(cnn_dets)))
-    rects = dlib.rectangles()
-    rects.extend([d.rect for d in cnn_dets])
-    win.add_overlay(rects)
+    #rects = dlib.rectangles()
+    #rects.extend([d.rect for d in cnn_dets])
+    #win.add_overlay(rects)
 
     #print("Number of faces detected: {}".format(len(dets)))
 
     for k, d in enumerate(cnn_dets):
+        face = Face()
+        face.bounding_box = [d.rect.top(), d.rect.bottom(), d.rect.left(), d.rect.right()]
+
         # add some padding and generate image
         padding= int(img.shape[0]*0.2)
 
@@ -131,21 +138,21 @@ def analyzeImage(data):
         left =   np.maximum(d.rect.left()  - padding, 0)
         right =  np.minimum(d.rect.right() + padding, img.shape[1])
 
-        cropped_face = img[top:bottom, left:right,0]
+        cropped_face = img[top:bottom, left:right,:]
 
-        dets = dlib_detector(cropped_face, 1)
+        face.image = bridge.cv2_to_imgmsg(np.array(cropped_face))
+
+        dets = dlib_detector(cropped_face[:,:,0], 1)
 
         if len(dets)==1:
             shape = dlib_shape_predictor(img, d.rect)
-            print shape
-            win.add_overlay(shape)
+            face.shape = [Point(p.x, p.y, 0) for p in shape.parts()]
+            #win.add_overlay(shape)
 
             face_descriptor = dlib_face_recognizer.compute_face_descriptor(img, shape)
-            face_id = getFaceID(face_descriptor)
-            print face_id
+            face.face_id = getFaceID(face_descriptor)
 
-
-    pub.publish("hhioi")
+        pub.publish(face)
 
 
 
@@ -158,11 +165,11 @@ if __name__ == "__main__":
 
     rospy.init_node('dlib_node', anonymous=True)
 
-    win = dlib.image_window()
+    #win = dlib.image_window()
     bridge = CvBridge()
 
     # Publishers
-    pub = rospy.Publisher('chatter', String, queue_size=10)
+    pub = rospy.Publisher('faces', Face, queue_size=10)
 
     # Dlib
     dlib_detector = dlib.get_frontal_face_detector()
