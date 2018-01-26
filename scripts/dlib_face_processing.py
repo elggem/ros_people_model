@@ -222,6 +222,9 @@ def faceAnalysis(event):
         face_descriptor = dlib_face_recognizer.compute_face_descriptor(IMAGE, shape)
         face.face_id = getFaceID(face_descriptor)
 
+        if face.face_id is None:
+            face.face_id = "            "
+
         # get emotion baby
         with graph.as_default():
             face.emotions = recognize_emotion(emopy_model, dlib_shape_predictor, cropped_face)
@@ -230,7 +233,8 @@ def faceAnalysis(event):
         faces.append(face)
         pub.publish(face)
 
-    debugDraw(FACE_CANDIDATES_FRONTAL, faces)
+    if DEBUG_DRAW:
+        debugDraw(FACE_CANDIDATES_FRONTAL, faces)
 
 
 def debugDraw(candidates, faces):
@@ -289,13 +293,14 @@ FRONTAL_FRATE = 1.0/8.0
 
 ANALYSIS_FRATE = 1.0/30.0
 
+DEBUG_DRAW = False
+
 if __name__ == "__main__":
     initializeModels()
     initializeFaceID()
 
     rospy.init_node('dlib_node', anonymous=True)
 
-    win = dlib.image_window()
     bridge = CvBridge()
 
     # Publishers
