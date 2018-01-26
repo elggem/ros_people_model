@@ -188,7 +188,7 @@ def faceDetectFrontalCallback(event):
         r = np.minimum(d.right()  + padding, IMAGE.shape[1])
         cropped_face = IMAGE[t:b, l:r, :]
 
-        dets = performFaceDetection(cropped_face, scale=0.25)
+        dets = performFaceDetection(cropped_face, scale=0.8)
 
         if len(dets)==1:
             frontal_dets.append(dlib.rectangle(   top = t + dets[0].top(),
@@ -207,6 +207,9 @@ def faceAnalysis(event):
     for k, d in enumerate(FACE_CANDIDATES_FRONTAL):
         face = Face()
         cropped_face = IMAGE[d.top():d.bottom(), d.left():d.right(), :]
+
+        if len(cropped_face)==0:
+            continue
 
         face.image = bridge.cv2_to_imgmsg(np.array(cropped_face))
         face.bounding_box = [d.top(), d.bottom(), d.left(), d.right()]
@@ -255,6 +258,9 @@ def debugDraw(candidates, faces):
     cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
 
     for i, d in enumerate(candidates):
+        if len(faces)-1<i:
+            continue
+
         face_id = faces[i].face_id
         if face_id is not None:
             cv2.putText(frame, face_id[:5], (d.left() + 10, d.top() + 10), cv2.FONT_HERSHEY_PLAIN, 0.9,txt_clr)
@@ -304,7 +310,7 @@ if __name__ == "__main__":
 
     # Launch detectors
     rospy.Timer(rospy.Duration(1.0/5.0), faceDetectCNNCallback)
-    rospy.Timer(rospy.Duration(1.0/5.0), faceDetectFrontalCallback)
+    rospy.Timer(rospy.Duration(1.0/3.0), faceDetectFrontalCallback)
     rospy.Timer(rospy.Duration(1.0/30.0), faceAnalysis)
 
     rospy.spin()
