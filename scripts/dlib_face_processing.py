@@ -110,72 +110,98 @@ def getFaceID(face_vec, threshold=0.6):
     FACE_ID_VECTOR_DICT[uuid.uuid4().hex] = np.array(face_vec)
     persistFaceID()
 
+def performCNNFaceDetection(img, scale=1.0):
+    if scale is not 1.0:
+        img = cv2.resize(img, (0,0), fx=scale, fy=scale)
 
-cnn_dets = None
-cnn_dets_use_count = 0
+    # perform CNN detection
+    cnnDets = dlib_cnn_detector(img, 1)
+    # rescale
+    return [dlib.rectangle(top    = int(d.rect.top()    / scale),
+                           bottom = int(d.rect.bottom() / scale),
+                           left   = int(d.rect.left()   / scale),
+                           right  = int(d.rect.right()  / scale)) for d in cnnDets]
 
-det_scale = 0.5
+def performFaceDetection(img, scale=1.0):
+    if scale is not 1.0:
+        img = cv2.resize(img, (0,0), fx=scale, fy=scale)
+
+    # perform CNN detection
+    dets = dlib_detector(img, 1)
+    # rescale
+    return [dlib.rectangle(top    = int(d.top()    / scale),
+                           bottom = int(d.bottom() / scale),
+                           left   = int(d.left()   / scale),
+                           right  = int(d.right()  / scale)) for d in dets]
 
 
-def analyzeImage(data):
-    global cnn_dets, cnn_dets_use_count
+IMAGE = None
+FACE_CANDIDATES_CNN = []
+FACE_CANDIDATES_FRONTAL = []
 
-    img = bridge.imgmsg_to_cv2(data, "rgb8")
-    small_img = cv2.resize(img, (0,0), fx=det_scale, fy=det_scale)
-
-    if cnn_dets == None:
-        cnn_dets = dlib_cnn_detector(small_img, 1)
-        cnn_dets_use_count = 15
-
-    win.clear_overlay()
-    win.set_image(img)
+def imageCallback(data):
+    global IMAGE
+    IMAGE = bridge.imgmsg_to_cv2(data, "rgb8")
 
 
-    #print("Number of faces detected: {}".format(len(dets)))
+def faceDetectCNNCallback(event):
+    global IMAGE, FACE_CANDIDATES_CNN
+    FACE_CANDIDATES_CNN = performCNNFaceDetection(IMAGE, scale=0.75)
 
-    for k, d in enumerate(cnn_dets):
-        t = int(d.rect.top() / det_scale)
-        b = int(d.rect.bottom() / det_scale)
-        l = int(d.rect.left() / det_scale)
-        r = int(d.rect.right() / det_scale)
-        big_rect = dlib.rectangle(l,t,r,b)
-        win.add_overlay(big_rect)
-        face = Face()
-        face.bounding_box = [t, b, l, r]
 
-        # add some padding and generate image
-        padding= int(img.shape[0]*0.3)
+def faceDetectFrontalCallback(event):
+    global IMAGE, FACE_CANDIDATES_CNN, FACE_CANDIDATES_FRONTAL
 
-        top =    np.maximum(d.rect.top()   - padding, 0)
-        bottom = np.minimum(d.rect.bottom()+ padding, small_img.shape[0])
-        left =   np.maximum(d.rect.left()  - padding, 0)
-        right =  np.minimum(d.rect.right() + padding, small_img.shape[1])
+    frontal_dets = []
+    #goes through list and only saves the one
+    for k, d in enumerate(FACE_CANDIDATES_CNN):
+        padding = int(IMAGE.shape[0]*0.1)
+        t = np.maximum(d.top()  - padding, 0)
+        l = np.maximum(d.left() - padding, 0)
+        b = np.minimum(d.bottom() + padding, IMAGE.shape[0])
+        r = np.minimum(d.right()  + padding, IMAGE.shape[1])
+        cropped_face = IMAGE[t:b, l:r, :]
 
-        cropped_face = small_img[top:bottom, left:right,:]
-
-        face.image = bridge.cv2_to_imgmsg(np.array(cropped_face))
-
-        dets = dlib_detector(cropped_face[:,:,0], 1)
+        dets = performFaceDetection(cropped_face, scale=0.25)
 
         if len(dets)==1:
-            shape = dlib_shape_predictor(img, big_rect)
-            face.shape = [Point(p.x, p.y, 0) for p in shape.parts()]
+            frontal_dets.append(dlib.rectangle(   top = t + dets[0].top(),
+                                               bottom = t + dets[0].bottom(),
+                                                 left = l + dets[0].left(),
+                                                right = l + dets[0].right()))
 
-            win.add_overlay(shape)
+    FACE_CANDIDATES_FRONTAL = frontal_dets
 
-            face_descriptor = dlib_face_recognizer.compute_face_descriptor(img, shape)
-            face.face_id = getFaceID(face_descriptor)
+
+def faceAnalysis(event):
+    global IMAGE, FACE_CANDIDATES_CNN, FACE_CANDIDATES_FRONTAL
+
+
+    if IMAGE is not None:
+        win.set_image(IMAGE)
+
+
+
+    for k, d in enumerate(FACE_CANDIDATES_FRONTAL):
+        face = Face()
+        #face.image = bridge.cv2_to_imgmsg(np.array(cropped_face))
+        face.bounding_box = [d.top(), d.bottom(), d.left(), d.right()]
+
+        # Get the shape
+        shape = dlib_shape_predictor(IMAGE, d)
+        face.shape = [Point(p.x, p.y, 0) for p in shape.parts()]
+
+        # Get the face descriptor
+        face_descriptor = dlib_face_recognizer.compute_face_descriptor(IMAGE, shape)
+        face.face_id = getFaceID(face_descriptor)
+
+        win.clear_overlay()
+        win.add_overlay(d)
+        win.add_overlay(shape)
 
         pub.publish(face)
-
-    # should we recalculate cnn dets in next frame?
-    cnn_dets_use_count -= 1
-    if cnn_dets_use_count == 0:
-        cnn_dets = None
-
-
-
-
+    for d in FACE_CANDIDATES_CNN:
+        win.add_overlay(d)
 
 if __name__ == "__main__":
     initializeModels()
@@ -188,6 +214,8 @@ if __name__ == "__main__":
 
     # Publishers
     pub = rospy.Publisher('faces', Face, queue_size=10)
+    # Subscribers
+    rospy.Subscriber("/camera/image_raw", Image, imageCallback)
 
     # Dlib
     dlib_detector = dlib.get_frontal_face_detector()
@@ -195,9 +223,9 @@ if __name__ == "__main__":
     dlib_shape_predictor = dlib.shape_predictor(DLIB_SHAPE_MODEL_FILE)
     dlib_face_recognizer = dlib.face_recognition_model_v1(DLIB_RECOGNITION_MODEL_FILE)
 
-
-
-    # Subscribers
-    rospy.Subscriber("/camera/image_raw", Image, analyzeImage)
+    # Launch detectors
+    rospy.Timer(rospy.Duration(1.0/5.0), faceDetectCNNCallback)
+    rospy.Timer(rospy.Duration(1.0/5.0), faceDetectFrontalCallback)
+    rospy.Timer(rospy.Duration(1.0/30.0), faceAnalysis)
 
     rospy.spin()
