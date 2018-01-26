@@ -1,10 +1,10 @@
+
 <launch>
-  <node name="camera" pkg="usb_cam" type="usb_cam_node" output="log">
-    <param name="video_device" value="/dev/video0" />
-    <param name="pixel_format" value="mjpeg" />
+  <node name="camera" pkg="cv_camera" type="cv_camera_node" output="log">
+    <param name="device_id" value="2" />
     <param name="image_width" value="320" />
     <param name="image_height" value="240" />
-    <param name="framerate" value="10" />
+    <param name="rate" value="10" />
 
   </node>
 <!--
