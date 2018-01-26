@@ -256,7 +256,8 @@ def debugDraw(candidates, faces):
 
     for i, d in enumerate(candidates):
         face_id = faces[i].face_id
-        cv2.putText(frame, face_id[:5], (d.left() + 10, d.top() + 10), cv2.FONT_HERSHEY_PLAIN, 0.9,txt_clr)
+        if face_id is not None:
+            cv2.putText(frame, face_id[:5], (d.left() + 10, d.top() + 10), cv2.FONT_HERSHEY_PLAIN, 0.9,txt_clr)
 
         shape = faces[i].shape
         for p in shape:
