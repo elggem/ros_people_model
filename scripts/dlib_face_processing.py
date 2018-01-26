@@ -111,49 +111,67 @@ def getFaceID(face_vec, threshold=0.6):
     persistFaceID()
 
 
+cnn_dets = None
+cnn_dets_use_count = 0
+
+det_scale = 0.5
+
 
 def analyzeImage(data):
+    global cnn_dets, cnn_dets_use_count
+
     img = bridge.imgmsg_to_cv2(data, "rgb8")
-    cnn_dets = dlib_cnn_detector(img, 1)
+    small_img = cv2.resize(img, (0,0), fx=det_scale, fy=det_scale)
 
-    #win.clear_overlay()
-    #win.set_image(img)
+    if cnn_dets == None:
+        cnn_dets = dlib_cnn_detector(small_img, 1)
+        cnn_dets_use_count = 15
 
-    #print("CNN nr of faces detected: {}".format(len(cnn_dets)))
-    #rects = dlib.rectangles()
-    #rects.extend([d.rect for d in cnn_dets])
-    #win.add_overlay(rects)
+    win.clear_overlay()
+    win.set_image(img)
+
 
     #print("Number of faces detected: {}".format(len(dets)))
 
     for k, d in enumerate(cnn_dets):
+        t = int(d.rect.top() / det_scale)
+        b = int(d.rect.bottom() / det_scale)
+        l = int(d.rect.left() / det_scale)
+        r = int(d.rect.right() / det_scale)
+        big_rect = dlib.rectangle(l,t,r,b)
+        win.add_overlay(big_rect)
         face = Face()
-        face.bounding_box = [d.rect.top(), d.rect.bottom(), d.rect.left(), d.rect.right()]
+        face.bounding_box = [t, b, l, r]
 
         # add some padding and generate image
-        padding= int(img.shape[0]*0.2)
+        padding= int(img.shape[0]*0.3)
 
         top =    np.maximum(d.rect.top()   - padding, 0)
-        bottom = np.minimum(d.rect.bottom()+ padding, img.shape[0])
+        bottom = np.minimum(d.rect.bottom()+ padding, small_img.shape[0])
         left =   np.maximum(d.rect.left()  - padding, 0)
-        right =  np.minimum(d.rect.right() + padding, img.shape[1])
+        right =  np.minimum(d.rect.right() + padding, small_img.shape[1])
 
-        cropped_face = img[top:bottom, left:right,:]
+        cropped_face = small_img[top:bottom, left:right,:]
 
         face.image = bridge.cv2_to_imgmsg(np.array(cropped_face))
 
         dets = dlib_detector(cropped_face[:,:,0], 1)
 
         if len(dets)==1:
-            shape = dlib_shape_predictor(img, d.rect)
+            shape = dlib_shape_predictor(img, big_rect)
             face.shape = [Point(p.x, p.y, 0) for p in shape.parts()]
-            #win.add_overlay(shape)
+
+            win.add_overlay(shape)
 
             face_descriptor = dlib_face_recognizer.compute_face_descriptor(img, shape)
             face.face_id = getFaceID(face_descriptor)
 
         pub.publish(face)
 
+    # should we recalculate cnn dets in next frame?
+    cnn_dets_use_count -= 1
+    if cnn_dets_use_count == 0:
+        cnn_dets = None
 
 
 
@@ -165,7 +183,7 @@ if __name__ == "__main__":
 
     rospy.init_node('dlib_node', anonymous=True)
 
-    #win = dlib.image_window()
+    win = dlib.image_window()
     bridge = CvBridge()
 
     # Publishers
