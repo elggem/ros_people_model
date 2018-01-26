@@ -172,7 +172,7 @@ def imageCallback(data):
 
 def faceDetectCNNCallback(event):
     global IMAGE, FACE_CANDIDATES_CNN
-    FACE_CANDIDATES_CNN = performCNNFaceDetection(IMAGE, scale=0.75)
+    FACE_CANDIDATES_CNN = performCNNFaceDetection(IMAGE, scale=CNN_SCALE)
 
 
 def faceDetectFrontalCallback(event):
@@ -188,7 +188,7 @@ def faceDetectFrontalCallback(event):
         r = np.minimum(d.right()  + padding, IMAGE.shape[1])
         cropped_face = IMAGE[t:b, l:r, :]
 
-        dets = performFaceDetection(cropped_face, scale=0.8)
+        dets = performFaceDetection(cropped_face, scale=FRONTAL_SCALE)
 
         if len(dets)==1:
             frontal_dets.append(dlib.rectangle(   top = t + dets[0].top(),
@@ -208,7 +208,7 @@ def faceAnalysis(event):
         face = Face()
         cropped_face = IMAGE[d.top():d.bottom(), d.left():d.right(), :]
 
-        if len(cropped_face)==0:
+        if len(cropped_face)==0 or len(cropped_face[0])==0:
             continue
 
         face.image = bridge.cv2_to_imgmsg(np.array(cropped_face))
@@ -281,6 +281,14 @@ def debugDraw(candidates, faces):
         return
 
 
+CNN_SCALE = 0.4
+CNN_FRATE = 1.0/5.0
+
+FRONTAL_SCALE = 0.4
+FRONTAL_FRATE = 1.0/8.0
+
+ANALYSIS_FRATE = 1.0/30.0
+
 if __name__ == "__main__":
     initializeModels()
     initializeFaceID()
@@ -309,8 +317,8 @@ if __name__ == "__main__":
     graph = tf.get_default_graph()
 
     # Launch detectors
-    rospy.Timer(rospy.Duration(1.0/5.0), faceDetectCNNCallback)
-    rospy.Timer(rospy.Duration(1.0/3.0), faceDetectFrontalCallback)
-    rospy.Timer(rospy.Duration(1.0/30.0), faceAnalysis)
+    rospy.Timer(rospy.Duration(CNN_FRATE), faceDetectCNNCallback)
+    rospy.Timer(rospy.Duration(FRONTAL_FRATE), faceDetectFrontalCallback)
+    rospy.Timer(rospy.Duration(ANALYSIS_FRATE), faceAnalysis)
 
     rospy.spin()
