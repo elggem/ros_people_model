@@ -21,6 +21,16 @@ import uuid
 import bz2
 import cv2
 
+#-------------------------- set gpu using tf ---------------------------
+import tensorflow as tf
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+session = tf.Session(config=config)
+#-------------------  start importing keras module ---------------------
+import keras.backend.tensorflow_backend as K
+from keras.models import model_from_json
+from emopy import recognize_emotion
+
 """
 This script uses the various detectors in DLib to do
   1 Face detection using CNN detector to do face detection for frontal and sideways faces
@@ -33,9 +43,6 @@ This script uses the various detectors in DLib to do
 
 
 TODO:
-  - detect if shapekeys are bad
-  - improve recognition (clustering?)
-
   - gaze direction
   https://github.com/severin-lemaignan/gazr
 
@@ -44,8 +51,15 @@ TODO:
 
 """
 
-
-
+EMOTIONS = {
+    0 : "anger",
+    1 : "disgust",
+    2 : "fear",
+    3 : "happy",
+    4 : "sad",
+    5 : "surprise",
+    6 : "neutral"
+}
 
 DLIB_CNN_MODEL_FILE = "/tmp/dlib/mmod_cnn.dat"
 DLIB_SHAPE_MODEL_FILE = "/tmp/dlib/shape_predictor.dat"
@@ -54,6 +68,13 @@ DLIB_RECOGNITION_MODEL_FILE = "/tmp/dlib/recognition_resnet.dat"
 DLIB_CNN_MODEL_URL = "http://dlib.net/files/mmod_human_face_detector.dat.bz2"
 DLIB_SHAPE_MODEL_URL = "http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2"
 DLIB_RECOGNITION_MODEL_URL = "http://dlib.net/files/dlib_face_recognition_resnet_model_v1.dat.bz2"
+
+EMOPY_AVA_JSON_FILE = "/tmp/dlib/ava.json"
+EMOPY_AVA_MODEL_FILE = "/tmp/dlib/ava.h5"
+
+EMOPY_AVA_JSON_URL = "https://raw.githubusercontent.com/mitiku1/Emopy-Models/master/models/ava.json"
+EMOPY_AVA_MODEL_URL = "https://raw.githubusercontent.com/mitiku1/Emopy-Models/master/models/ava.h5"
+
 
 def initializeModels():
     urlOpener = urllib.URLopener()
@@ -78,8 +99,13 @@ def initializeModels():
         data = bz2.BZ2File(DLIB_RECOGNITION_MODEL_FILE).read() # get the decompressed data
         open(DLIB_RECOGNITION_MODEL_FILE, 'wb').write(data) # write a uncompressed file
 
+    if not os.path.isfile(EMOPY_AVA_JSON_FILE):
+        print("downloading %s" % EMOPY_AVA_JSON_URL)
+        urlOpener.retrieve(EMOPY_AVA_JSON_URL, EMOPY_AVA_JSON_FILE)
 
-
+    if not os.path.isfile(EMOPY_AVA_MODEL_FILE):
+        print("downloading %s" % EMOPY_AVA_MODEL_URL)
+        urlOpener.retrieve(EMOPY_AVA_MODEL_URL, EMOPY_AVA_MODEL_FILE)
 
 
 
@@ -141,7 +167,7 @@ FACE_CANDIDATES_FRONTAL = []
 
 def imageCallback(data):
     global IMAGE
-    IMAGE = bridge.imgmsg_to_cv2(data, "rgb8")
+    IMAGE = bridge.imgmsg_to_cv2(data, "bgr8")
 
 
 def faceDetectCNNCallback(event):
@@ -176,15 +202,13 @@ def faceDetectFrontalCallback(event):
 def faceAnalysis(event):
     global IMAGE, FACE_CANDIDATES_CNN, FACE_CANDIDATES_FRONTAL
 
-
-    if IMAGE is not None:
-        win.set_image(IMAGE)
-
-
+    faces = []
 
     for k, d in enumerate(FACE_CANDIDATES_FRONTAL):
         face = Face()
-        #face.image = bridge.cv2_to_imgmsg(np.array(cropped_face))
+        cropped_face = IMAGE[d.top():d.bottom(), d.left():d.right(), :]
+
+        face.image = bridge.cv2_to_imgmsg(np.array(cropped_face))
         face.bounding_box = [d.top(), d.bottom(), d.left(), d.right()]
 
         # Get the shape
@@ -195,13 +219,60 @@ def faceAnalysis(event):
         face_descriptor = dlib_face_recognizer.compute_face_descriptor(IMAGE, shape)
         face.face_id = getFaceID(face_descriptor)
 
-        win.clear_overlay()
-        win.add_overlay(d)
-        win.add_overlay(shape)
+        # get emotion baby
+        with graph.as_default():
+            face.emotions = recognize_emotion(emopy_model, dlib_shape_predictor, cropped_face)
 
+        ## IN CASE WE WANNA SEE IT
+        faces.append(face)
         pub.publish(face)
+
+    debugDraw(FACE_CANDIDATES_FRONTAL, faces)
+
+
+def debugDraw(candidates, faces):
+    global IMAGE, FACE_CANDIDATES_CNN
+
+    cnn_clr = (0, 0, 255)
+    frt_clr = (0, 0, 0)
+    txt_clr = (255, 255, 255)
+    shp_clr = (255, 255, 255)
+    emo_clr = (150, 150, 125)
+
+    frame = IMAGE.copy()
+    overlay_cnn = IMAGE.copy()
+    overlay = IMAGE.copy()
+    highlights = IMAGE.copy()
+
     for d in FACE_CANDIDATES_CNN:
-        win.add_overlay(d)
+        cv2.rectangle(overlay_cnn, (d.left(),d.top()), (d.right(),d.bottom()), cnn_clr, -1)
+
+    for i, d in enumerate(candidates):
+        cv2.rectangle(overlay, (d.left(),d.top()), (d.right(),d.bottom()), frt_clr, -1)
+
+    alpha = 0.2
+    cv2.addWeighted(overlay_cnn, alpha, frame, 1 - alpha, 0, frame)
+    cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
+
+    for i, d in enumerate(candidates):
+        face_id = faces[i].face_id
+        cv2.putText(frame, face_id[:5], (d.left() + 10, d.top() + 10), cv2.FONT_HERSHEY_PLAIN, 0.9,txt_clr)
+
+        shape = faces[i].shape
+        for p in shape:
+            cv2.circle(frame, (p.x, p.y), 2, shp_clr)
+
+        emotions = faces[i].emotions
+        for p, emo in enumerate(emotions):
+            cv2.rectangle(frame, (d.left() + (p*20),      d.bottom() + (int(emo*80))),
+                                 (d.left() + (p*20) + 20, d.bottom()), emo_clr, -1)
+
+
+
+    cv2.imshow("Image",frame)
+    if (cv2.waitKey(10) & 0xFF == ord('q')):
+        return
+
 
 if __name__ == "__main__":
     initializeModels()
@@ -222,6 +293,13 @@ if __name__ == "__main__":
     dlib_cnn_detector = dlib.cnn_face_detection_model_v1(DLIB_CNN_MODEL_FILE)
     dlib_shape_predictor = dlib.shape_predictor(DLIB_SHAPE_MODEL_FILE)
     dlib_face_recognizer = dlib.face_recognition_model_v1(DLIB_RECOGNITION_MODEL_FILE)
+
+    # emopy
+    with open(EMOPY_AVA_JSON_FILE) as model_file:
+        emopy_model = model_from_json(model_file.read())
+        emopy_model.load_weights(EMOPY_AVA_MODEL_FILE)
+
+    graph = tf.get_default_graph()
 
     # Launch detectors
     rospy.Timer(rospy.Duration(1.0/5.0), faceDetectCNNCallback)
