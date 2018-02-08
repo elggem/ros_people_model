@@ -21,6 +21,10 @@ import uuid
 import bz2
 import cv2
 
+import time
+
+current_milli_time = lambda: int(round(time.time() * 1000))
+
 #-------------------------- set gpu using tf ---------------------------
 import tensorflow as tf
 config = tf.ConfigProto()
@@ -119,21 +123,45 @@ def initializeFaceID():
     if FACE_ID_VECTOR_DICT is None:
         if os.path.isfile(FACE_ID_VECTOR_FILE):
             print("Loading Face ID data")
-            FACE_ID_VECTOR_DICT = pickle.load(open(FACE_ID_VECTOR_FILE, "r"))
+            FACE_ID_VECTOR_DICT = pickle.load(open(FACE_ID_VECTOR_FILE, "rb"))
+            print("number of faces registered: %i" % len(FACE_ID_VECTOR_DICT))
         else:
             FACE_ID_VECTOR_DICT = {}
 
 def persistFaceID():
     print("Persisting Face ID data")
-    pickle.dump(FACE_ID_VECTOR_DICT, open(FACE_ID_VECTOR_FILE, "w"))
+    pickle.dump(FACE_ID_VECTOR_DICT, open(FACE_ID_VECTOR_FILE, "wb"), protocol=pickle.HIGHEST_PROTOCOL)
 
-def getFaceID(face_vec, threshold=0.6):
+def addFaceVectorToID(identifier, face_vec):
+    old_vectors = FACE_ID_VECTOR_DICT[identifier]['vector']
+    FACE_ID_VECTOR_DICT[identifier]['vector'] = old_vectors + [face_vec]
+
+
+def getFaceID(face_vec, position, timestamp, threshold=0.6):
+    face_vec = np.array([i for i in face_vec])
+
     # Compares given face vector with stored to determine match
-    for identifier, stored_vec in FACE_ID_VECTOR_DICT.iteritems():
-        if np.linalg.norm(np.array(face_vec) - stored_vec) < threshold:
+    for identifier, stored in FACE_ID_VECTOR_DICT.iteritems():
+        for stored_vector in stored['vector']:
+            if np.linalg.norm(face_vec - stored_vector) < threshold:
+                FACE_ID_VECTOR_DICT[identifier]['position'] = np.array(position)
+                FACE_ID_VECTOR_DICT[identifier]['timestamp'] = timestamp
+                return identifier
+
+    # check if sth close.
+    for identifier, stored in FACE_ID_VECTOR_DICT.iteritems():
+        timedistance = np.abs(stored['timestamp'] - np.array(timestamp))
+        spatialdistance = np.linalg.norm(stored['position'] - np.array(position))
+        print("times %.4f" % (spatialdistance))
+        if spatialdistance < 100.0 and timedistance < 1000:
+            print("adding new vector to face")
+            addFaceVectorToID(identifier, face_vec)
+            persistFaceID()
             return identifier
+
+
     # TODO: Maybe add new face only on threshold.
-    FACE_ID_VECTOR_DICT[uuid.uuid4().hex] = np.array(face_vec)
+    FACE_ID_VECTOR_DICT[uuid.uuid4().hex] = {'vector': [face_vec], 'position':np.array(position), 'timestamp':timestamp}
     persistFaceID()
 
 def performCNNFaceDetection(img, scale=1.0):
@@ -220,7 +248,7 @@ def faceAnalysis(event):
 
         # Get the face descriptor
         face_descriptor = dlib_face_recognizer.compute_face_descriptor(IMAGE, shape)
-        face.face_id = getFaceID(face_descriptor)
+        face.face_id = getFaceID(face_descriptor, face.bounding_box, current_milli_time())
 
         if face.face_id is None:
             face.face_id = "            "
@@ -293,7 +321,7 @@ FRONTAL_FRATE = 1.0/8.0
 
 ANALYSIS_FRATE = 1.0/30.0
 
-DEBUG_DRAW = False
+DEBUG_DRAW = True
 
 if __name__ == "__main__":
     initializeModels()
