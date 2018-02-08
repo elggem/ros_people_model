@@ -192,6 +192,7 @@ def performFaceDetection(img, scale=1.0):
 IMAGE = None
 FACE_CANDIDATES_CNN = []
 FACE_CANDIDATES_FRONTAL = []
+FACE_CANDIDATES_SIDEWAYS = []
 
 def imageCallback(data):
     global IMAGE
@@ -204,8 +205,9 @@ def faceDetectCNNCallback(event):
 
 
 def faceDetectFrontalCallback(event):
-    global IMAGE, FACE_CANDIDATES_CNN, FACE_CANDIDATES_FRONTAL
+    global IMAGE, FACE_CANDIDATES_CNN, FACE_CANDIDATES_FRONTAL, FACE_CANDIDATES_SIDEWAYS
 
+    sideways_dets = []
     frontal_dets = []
     #goes through list and only saves the one
     for k, d in enumerate(FACE_CANDIDATES_CNN):
@@ -223,12 +225,23 @@ def faceDetectFrontalCallback(event):
                                                bottom = t + dets[0].bottom(),
                                                  left = l + dets[0].left(),
                                                 right = l + dets[0].right()))
+        else:
+            sideways_dets.append(d)
 
     FACE_CANDIDATES_FRONTAL = frontal_dets
+    FACE_CANDIDATES_SIDEWAYS = sideways_dets
 
 
 def faceAnalysis(event):
-    global IMAGE, FACE_CANDIDATES_CNN, FACE_CANDIDATES_FRONTAL
+    global IMAGE, FACE_CANDIDATES_CNN, FACE_CANDIDATES_FRONTAL, FACE_CANDIDATES_SIDEWAYS
+
+    for k, d in enumerate(FACE_CANDIDATES_SIDEWAYS):
+        face = Face()
+        cropped_face = IMAGE[d.top():d.bottom(), d.left():d.right(), :]
+        #face.image = bridge.cv2_to_imgmsg(np.array(cropped_face))
+        face.bounding_box = [d.top(), d.bottom(), d.left(), d.right()]
+        face.face_id = "None"
+        pub.publish(face)
 
     faces = []
 
@@ -321,7 +334,7 @@ FRONTAL_FRATE = 1.0/8.0
 
 ANALYSIS_FRATE = 1.0/30.0
 
-DEBUG_DRAW = True
+DEBUG_DRAW = False
 
 if __name__ == "__main__":
     initializeModels()

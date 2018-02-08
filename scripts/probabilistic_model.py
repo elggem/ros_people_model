@@ -5,19 +5,13 @@ from ros_slopp.msg import Face
 
 import numpy as np
 
-from filterpy.kalman import KalmanFilter
-from filterpy.common import Q_discrete_white_noise
-
 import numpy as np
 import matplotlib.pyplot as plt
 import time, random
 import math
 from collections import deque
 
-"""
 
-
-"""
 EMOTIONS = {
     0 : "anger",
     1 : "disgust",
@@ -28,26 +22,45 @@ EMOTIONS = {
     6 : "neutral"
 }
 
-f = KalmanFilter (dim_x=2, dim_z=1)
-f.x = np.array([[2.],    # position
-                [0.]])   # velocity
-f.F = np.array([[1.,1.],
-                [0.,1.]])
-f.H = np.array([[1.,0.]])
-f.P *= 10.
-f.R = 5
-f.Q = Q_discrete_white_noise(dim=2, dt=0.1, var=0.13)
+ACTIVE_PEOPLE = {}
 
-
-
+def decayPeople(self):
+    global ACTIVE_PEOPLE
+    to_remove = []
+    for identifier, stored in ACTIVE_PEOPLE.iteritems():
+        stored['active'] -= 0.01
+        if stored['active'] < 0.0:
+            to_remove.append(identifier)
+    for rem in to_remove:
+        del ACTIVE_PEOPLE[rem]
 
 def facePerceived(face):
-    global i
-    f.predict()
-    f.update(face.emotions[3])
+    global ACTIVE_PEOPLE
+    if face.face_id == "None":
+        for identifier, stored in ACTIVE_PEOPLE.iteritems():
+            distance = np.linalg.norm(np.array(stored['face'].bounding_box) - np.array(face.bounding_box))
+            if distance < 400:
+                stored['active'] += 0.01
+                stored['active'] = np.minimum(1.0, stored['active'])
+                return
+        return
+    else:
+        for identifier, stored in ACTIVE_PEOPLE.iteritems():
+            if identifier == face.face_id:
+                stored['active'] += 0.01
+                stored['active'] = np.minimum(1.0, stored['active'])
+                return
 
+    ACTIVE_PEOPLE[face.face_id] = {'face':face, 'active':0.1}
 
-    print "%.8f, %.8f" % (f.x[0], face.emotions[3])
+def printPerceived(self):
+    global ACTIVE_PEOPLE
+    for identifier, stored in ACTIVE_PEOPLE.iteritems():
+        if stored['active'] > 0.1:
+            print("%s %.3f" % (identifier, stored['active']))
+            stored['face'].certainty = stored['active']
+            pub.publish(stored['face'])
+    print("---")
 
 if __name__ == "__main__":
     rospy.init_node('dlib_node', anonymous=True)
@@ -56,5 +69,7 @@ if __name__ == "__main__":
 
     rospy.Subscriber("/faces", Face, facePerceived)
 
+    rospy.Timer(rospy.Duration(1.0/16.0), decayPeople)
+    rospy.Timer(rospy.Duration(1.0/8.0), printPerceived)
 
     rospy.spin()
