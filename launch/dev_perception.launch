@@ -9,12 +9,19 @@
 
   </node>
 
+
+  <node name="debug_output" pkg="ros_peoplemodel" type="debug_output" output="log" />
+
+<!--
   <node name="vis_dlib_cnn" pkg="ros_peoplemodel" type="vis_dlib_cnn" output="log">
     <param name="topic_name" value="/camera" />
     <param name="resolution" value="0.5" />
     <param name="framerate" value="5" />
   </node>
+-->
 
+
+<!--
   <node name="vis_dlib_frontal" pkg="ros_peoplemodel" type="vis_dlib_frontal" output="log">
     <param name="resolution" value="0.5" />
     <param name="framerate" value="5" />
@@ -26,5 +33,5 @@
   </node>
 
   ...
-
+-->
 </launch>

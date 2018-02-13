@@ -1,5 +1,20 @@
+#!/usr/bin/python
+import rospy
+import sys
+import dlib
+import numpy as np
+import cv2
+from cv_bridge import CvBridge, CvBridgeError
 
-def debugDraw(candidates, faces):
+from sensor_msgs.msg import Image
+from ros_peoplemodel.msg import Feature
+
+DRAW_FRAMERATE = 1.0/30.0
+
+IMAGE = None
+FACE_CANDIDATES_CNN = []
+
+def debugDraw(self):
     global IMAGE, FACE_CANDIDATES_CNN
 
     cnn_clr = (0, 0, 255)
@@ -40,8 +55,32 @@ def debugDraw(candidates, faces):
             cv2.rectangle(frame, (d.left() + (p*20),      d.bottom() + (int(emo*80))),
                                  (d.left() + (p*20) + 20, d.bottom()), emo_clr, -1)
 
-
-
     cv2.imshow("Image",frame)
     if (cv2.waitKey(10) & 0xFF == ord('q')):
         return
+
+
+
+def imageCallback(data):
+    global IMAGE
+    IMAGE = bridge.imgmsg_to_cv2(data, "bgr8")
+
+def cnnCallback(data):
+    global FACE_CANDIDATES_CNN
+    FACE_CANDIDATES_CNN.append(data)
+
+
+if __name__ == "__main__":
+    rospy.init_node('debug_output', anonymous=True)
+    bridge = CvBridge()
+
+    # Subscribers
+    rospy.Subscriber("/camera/image_raw", Image, imageCallback)
+    rospy.Subscriber("/people/vis_dlib_cnn", Feature, cnnCallback)
+
+    # Dlib
+    dlib_cnn_detector = dlib.cnn_face_detection_model_v1(DLIB_CNN_MODEL_FILE)
+    # Launch detectors
+    rospy.Timer(rospy.Duration(CNN_FRATE), debugDraw)
+
+    rospy.spin()
