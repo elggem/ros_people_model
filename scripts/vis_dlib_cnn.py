@@ -4,18 +4,19 @@ import sys
 import dlib
 import numpy as np
 import cv2
+import urllib
+import os
+import bz2
 from cv_bridge import CvBridge, CvBridgeError
 
+from ros_peoplemodel.msg import Feature
+from sensor_msgs.msg import RegionOfInterest
 from sensor_msgs.msg import Image
-from std_msgs.msg import String
-from geometry_msgs.msg import Point
-from ros_slopp.msg import Face
+
+IMAGE = None
 
 DLIB_CNN_MODEL_FILE = "/tmp/dlib/mmod_cnn.dat"
 DLIB_CNN_MODEL_URL = "http://dlib.net/files/mmod_human_face_detector.dat.bz2"
-
-CNN_SCALE = 0.4
-CNN_FRATE = 1.0/5.0
 
 def initializeModel():
     urlOpener = urllib.URLopener()
@@ -28,6 +29,7 @@ def initializeModel():
         data = bz2.BZ2File(DLIB_CNN_MODEL_FILE).read() # get the decompressed data
         open(DLIB_CNN_MODEL_FILE, 'wb').write(data) # write a uncompressed file
 
+
 def performCNNFaceDetection(img, scale=1.0):
     if scale is not 1.0:
         img = cv2.resize(img, (0,0), fx=scale, fy=scale)
@@ -36,19 +38,40 @@ def performCNNFaceDetection(img, scale=1.0):
     cnnDets = dlib_cnn_detector(img, 1)
     # rescale
     return [dlib.rectangle(top    = int(d.rect.top()    / scale),
-                    rospy.Timer(rospy.Duration(FRONTAL_FRATE), faceDetectFrontalCallback)
-    rospy.Timer(rospy.Duration(ANALYSIS_FRATE), faceAnalysis)
-           bottom = int(d.rect.bottom() / scale),
+                           bottom = int(d.rect.bottom() / scale),
                            left   = int(d.rect.left()   / scale),
                            right  = int(d.rect.right()  / scale)) for d in cnnDets]
+
+
 
 def imageCallback(data):
     global IMAGE
     IMAGE = bridge.imgmsg_to_cv2(data, "bgr8")
 
 def faceDetectCNNCallback(event):
-    global IMAGE, FACE_CANDIDATES_CNN
-    FACE_CANDIDATES_CNN = performCNNFaceDetection(IMAGE, scale=CNN_SCALE)
+    global IMAGE
+
+    if IMAGE is None:
+        return
+
+    cnn_results = performCNNFaceDetection(IMAGE, scale=CNN_SCALE)
+
+    for k, d in enumerate(cnn_results):
+        padding = int(IMAGE.shape[0]*CNN_PADDING)
+
+        roi = RegionOfInterest()
+        roi.x_offset = np.maximum(d.left() - padding, 0)
+        roi.y_offset = np.maximum(d.top()  - padding, 0)
+        roi.height = np.minimum(d.bottom() + padding, IMAGE.shape[0]) - roi.y_offset
+        roi.width = np.minimum(d.right()  + padding, IMAGE.shape[1]) - roi.x_offset
+
+        feature = Feature()
+        feature.image = bridge.cv2_to_imgmsg(np.array(IMAGE))
+        feature.image_crop = bridge.cv2_to_imgmsg(np.array(IMAGE[roi.y_offset:roi.y_offset+roi.height,
+                                                                 roi.x_offset:roi.x_offset+roi.width, :]))
+        feature.roi = roi
+
+        pub.publish(feature)
 
 
 
@@ -57,10 +80,14 @@ if __name__ == "__main__":
     rospy.init_node('vis_dlib_cnn', anonymous=True)
     bridge = CvBridge()
 
+    CNN_SCALE = rospy.get_param('~scale', 0.4)
+    CNN_FRATE = rospy.get_param('~rate', 1.0/5.0)
+    CNN_PADDING = rospy.get_param('~padding', 0.1)
+
     # Publishers
-    pub = rospy.Publisher('vis_dlib_cnn', Feature, queue_size=10)
+    pub = rospy.Publisher('/people/vis_dlib_cnn', Feature, queue_size=10)
     # Subscribers
-    rospy.Subscriber("/camera/image_raw", Image, imageCallback)
+    rospy.Subscriber(rospy.get_param('~topic_name', '/camera/image_raw'), Image, imageCallback)
 
     # Dlib
     dlib_cnn_detector = dlib.cnn_face_detection_model_v1(DLIB_CNN_MODEL_FILE)
