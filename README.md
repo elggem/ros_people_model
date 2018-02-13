@@ -2,7 +2,15 @@
 
 ![Diagram Architecture](https://raw.githubusercontent.com/elggem/ros_slopp/master/images/arch.png)
 
-ROS package for face and speech recognition into OpenCog.
+This is a collection of various wrapper scripts for perception of people and their various attributes in ROS.
+
+## TODO
+
+
+## Components
+
+Describe here!
+
 
 ## Dependencies
 ### Dlib
