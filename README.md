@@ -1,4 +1,4 @@
-# SLOPP: Self Localizing Probabilstic Perception
+# ros_peoplemodel
 
 ![Diagram Architecture](https://raw.githubusercontent.com/elggem/ros_slopp/master/images/arch.png)
 

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>ros_slopp</name>
+  <name>ros_peoplemodel</name>
   <version>0.0.0</version>
-  <description>The ros_slopp package</description>
+  <description>The ros_peoplemodel package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
