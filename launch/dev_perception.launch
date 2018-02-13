@@ -1,0 +1,30 @@
+
+<launch>
+  <node name="camera" pkg="usb_cam" type="usb_cam_node" output="log">
+    <param name="video_device" value="/dev/video0" />
+    <param name="pixel_format" value="mjpeg" />
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="framerate" value="30" />
+
+  </node>
+
+  <node name="vis_dlib_cnn" pkg="ros_slopp" type="vis_dlib_cnn" output="log">
+    <param name="topic_name" value="/camera" />
+    <param name="resolution" value="0.5" />
+    <param name="framerate" value="5" />
+  </node>
+
+  <node name="vis_dlib_frontal" pkg="ros_slopp" type="vis_dlib_frontal" output="log">
+    <param name="resolution" value="0.5" />
+    <param name="framerate" value="5" />
+  </node>
+
+  <node name="vis_dlib_shapes" pkg="ros_slopp" type="vis_dlib_frontal" output="log">
+    <param name="resolution" value="0.5" />
+    <param name="framerate" value="5" />
+  </node>
+
+  ...
+
+</launch>
