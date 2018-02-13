@@ -6,14 +6,11 @@ import numpy as np
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 
+from ros_peoplemodel.msg import Features
+from sensor_msgs.msg import RegionOfInterest
 from sensor_msgs.msg import Image
-from std_msgs.msg import String
-from geometry_msgs.msg import Point
-from ros_slopp.msg import Face
 
-FRONTAL_SCALE = 0.4
-FRONTAL_FRATE = 1.0/8.0
-
+FACE_CANDIDATES_CNN = None
 
 def performFaceDetection(img, scale=1.0):
     if scale is not 1.0:
@@ -28,51 +25,55 @@ def performFaceDetection(img, scale=1.0):
                            right  = int(d.right()  / scale)) for d in dets]
 
 
-def imageCallback(data):
-    global IMAGE
-    IMAGE = bridge.imgmsg_to_cv2(data, "bgr8")
+def featuresCallback(features):
+    global FACE_CANDIDATES_CNN
+    FACE_CANDIDATES_CNN = features
 
 
 def faceDetectFrontalCallback(event):
-    global IMAGE, FACE_CANDIDATES_CNN, FACE_CANDIDATES_FRONTAL, FACE_CANDIDATES_SIDEWAYS
+    global FACE_CANDIDATES_CNN
 
-    sideways_dets = []
-    frontal_dets = []
+    if FACE_CANDIDATES_CNN is None:
+        return
+
+    IMAGE = bridge.imgmsg_to_cv2(FACE_CANDIDATES_CNN.image, "8UC3")
+
+    features = Features()
+    features.image = FACE_CANDIDATES_CNN.image
+    features.crops = []
+    features.rois = []
+
     #goes through list and only saves the one
-    for k, d in enumerate(FACE_CANDIDATES_CNN):
-        padding = int(IMAGE.shape[0]*0.1)
-        t = np.maximum(d.top()  - padding, 0)
-        l = np.maximum(d.left() - padding, 0)
-        b = np.minimum(d.bottom() + padding, IMAGE.shape[0])
-        r = np.minimum(d.right()  + padding, IMAGE.shape[1])
-        cropped_face = IMAGE[t:b, l:r, :]
-
-        dets = performFaceDetection(cropped_face, scale=FRONTAL_SCALE)
+    for k, crop_img in enumerate(FACE_CANDIDATES_CNN.crops):
+        crop = bridge.imgmsg_to_cv2(crop_img, "8UC3")
+        dets = performFaceDetection(crop, scale=FRONTAL_SCALE)
 
         if len(dets)==1:
-            frontal_dets.append(dlib.rectangle(   top = t + dets[0].top(),
-                                               bottom = t + dets[0].bottom(),
-                                                 left = l + dets[0].left(),
-                                                right = l + dets[0].right()))
-        else:
-            sideways_dets.append(d)
+            d = dets[0]
 
-    FACE_CANDIDATES_FRONTAL = frontal_dets
-    FACE_CANDIDATES_SIDEWAYS = sideways_dets
+            roi = RegionOfInterest()
+            roi.x_offset = np.maximum(FACE_CANDIDATES_CNN.rois[k].x_offset + d.left(), 0)
+            roi.y_offset = np.maximum(FACE_CANDIDATES_CNN.rois[k].y_offset + d.top(), 0)
+            roi.height =   np.maximum(d.bottom() - d.top(), 0)
+            roi.width =    np.maximum(d.right() - d.left(), 0)
 
+            features.rois.append(roi)
+            features.crops.append(bridge.cv2_to_imgmsg(np.array(IMAGE[roi.y_offset:roi.y_offset+roi.height,
+                                                                     roi.x_offset:roi.x_offset+roi.width, :])))
 
+    pub.publish(features)
 
 if __name__ == "__main__":
-    initializeModel()
-
     rospy.init_node('vis_dlib_frontal', anonymous=True)
-
     bridge = CvBridge()
 
+    FRONTAL_SCALE = rospy.get_param('~scale', 0.4)
+    FRONTAL_FRATE = rospy.get_param('~rate', 1.0/8.0)
+
     # Publishers
-    pub = rospy.Publisher('vis_dlib_frontal', Face, queue_size=10)
+    pub = rospy.Publisher('vis_dlib_frontal', Features, queue_size=10)
     # Subscribers
-    rospy.Subscriber("/vis_dlib_cnn", Feature, featureCallback)
+    rospy.Subscriber(rospy.get_param('~topic_name', '/people/vis_dlib_cnn'), Features, featuresCallback)
 
     # Dlib
     dlib_detector = dlib.get_frontal_face_detector()

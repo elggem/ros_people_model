@@ -9,7 +9,7 @@ import os
 import bz2
 from cv_bridge import CvBridge, CvBridgeError
 
-from ros_peoplemodel.msg import Feature
+from ros_peoplemodel.msg import Features
 from sensor_msgs.msg import RegionOfInterest
 from sensor_msgs.msg import Image
 
@@ -56,22 +56,25 @@ def faceDetectCNNCallback(event):
 
     cnn_results = performCNNFaceDetection(IMAGE, scale=CNN_SCALE)
 
+    features = Features()
+    features.image = bridge.cv2_to_imgmsg(np.array(IMAGE))
+    features.crops = []
+    features.rois = []
+
     for k, d in enumerate(cnn_results):
         padding = int(IMAGE.shape[0]*CNN_PADDING)
 
         roi = RegionOfInterest()
         roi.x_offset = np.maximum(d.left() - padding, 0)
         roi.y_offset = np.maximum(d.top()  - padding, 0)
-        roi.height = np.minimum(d.bottom() + padding, IMAGE.shape[0]) - roi.y_offset
-        roi.width = np.minimum(d.right()  + padding, IMAGE.shape[1]) - roi.x_offset
+        roi.height = np.minimum(d.bottom() - roi.y_offset + padding, IMAGE.shape[0])
+        roi.width = np.minimum(d.right()  - roi.x_offset + padding, IMAGE.shape[1])
 
-        feature = Feature()
-        feature.image = bridge.cv2_to_imgmsg(np.array(IMAGE))
-        feature.image_crop = bridge.cv2_to_imgmsg(np.array(IMAGE[roi.y_offset:roi.y_offset+roi.height,
-                                                                 roi.x_offset:roi.x_offset+roi.width, :]))
-        feature.roi = roi
+        features.rois.append(roi)
+        features.crops.append(bridge.cv2_to_imgmsg(np.array(IMAGE[roi.y_offset:roi.y_offset+roi.height,
+                                                                 roi.x_offset:roi.x_offset+roi.width, :])))
 
-        pub.publish(feature)
+    pub.publish(features)
 
 
 
@@ -85,7 +88,7 @@ if __name__ == "__main__":
     CNN_PADDING = rospy.get_param('~padding', 0.1)
 
     # Publishers
-    pub = rospy.Publisher('/people/vis_dlib_cnn', Feature, queue_size=10)
+    pub = rospy.Publisher('/people/vis_dlib_cnn', Features, queue_size=10)
     # Subscribers
     rospy.Subscriber(rospy.get_param('~topic_name', '/camera/image_raw'), Image, imageCallback)
 

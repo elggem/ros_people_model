@@ -10,16 +10,24 @@
   </node>
 
 
-  <node name="debug_output" pkg="ros_peoplemodel" type="debug_output" output="log" />
+  <node name="debug_output" pkg="ros_peoplemodel" type="debug_output.py" output="screen" />
 
-<!--
-  <node name="vis_dlib_cnn" pkg="ros_peoplemodel" type="vis_dlib_cnn" output="log">
-    <param name="topic_name" value="/camera" />
-    <param name="resolution" value="0.5" />
-    <param name="framerate" value="5" />
+
+  <node name="vis_dlib_cnn" pkg="ros_peoplemodel" type="vis_dlib_cnn.py" output="screen">
+    <param name="topic_name" value="/camera/image_raw" />
+
+    <param name="scale" type="double" value="0.4" />
+    <param name="rate" type="double" value="0.2" />
+    <param name="padding" type="double" value="0.1" />
   </node>
--->
 
+
+  <node name="vis_dlib_frontal" pkg="ros_peoplemodel" type="vis_dlib_frontal.py" output="screen">
+    <param name="topic_name" value="/people/vis_dlib_cnn" />
+
+    <param name="scale" type="double" value="0.4" />
+    <param name="rate" type="double" value="0.2" />
+  </node>
 
 <!--
   <node name="vis_dlib_frontal" pkg="ros_peoplemodel" type="vis_dlib_frontal" output="log">

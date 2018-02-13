@@ -45,7 +45,7 @@ find_package(catkin REQUIRED COMPONENTS std_msgs sensor_msgs geometry_msgs messa
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  Face.msg
+  Features.msg
 )
 
 ## Generate services in the 'srv' folder
