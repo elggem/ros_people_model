@@ -9,7 +9,11 @@ from hr_msgs.msg import pau
 
 """
 this script fuses quaternions from head rotation and eye pitch/yaw into a pose topic
+
 """
+
+HEAD_RANGE = 0.785398 # 45 deg
+EYES_RANGE = 0.52 # 35 deg
 
 def pauCallback(msg):
     # this doesnt make sense, but it works.
@@ -17,8 +21,7 @@ def pauCallback(msg):
     pryHead = tf.transformations.euler_from_quaternion(quaternionHead, axes='sxyz')
     rpyHead = [pryHead[1], -pryHead[0], pryHead[2]]
     rpyEyes = [0.0, msg.m_eyeGazeLeftPitch, msg.m_eyeGazeLeftYaw]
-
-    rpyCombined = np.array(rpyHead) + np.array(rpyEyes)
+    rpyCombined = (np.array(rpyHead) * HEAD_RANGE) + (np.array(rpyEyes) * EYES_RANGE)
     quaternionCombined = tf.transformations.quaternion_from_euler(rpyCombined[0], -rpyCombined[1], rpyCombined[2])
 
     pose = Pose()
@@ -28,10 +31,6 @@ def pauCallback(msg):
     pose.orientation.w = quaternionCombined[3]
 
     pub.publish(pose)
-
-    #print("head yaw 1 %.2f yaw 2 %.2f yaw 3 %.2f" % (rpyHead[0], rpyHead[1], rpyHead[2]))
-    #print("eye  yaw 1 %.2f yaw 2 %.2f yaw 3 %.2f" % (rpyEyes[0], rpyEyes[1], rpyEyes[2]))
-    #print("cbd  yaw 1 %.2f yaw 2 %.2f yaw 3 %.2f" % (rpyCombined[0], rpyCombined[1], rpyCombined[2]))
 
 if __name__ == "__main__":
     rospy.init_node('pau_pose_estimator', anonymous=True)
