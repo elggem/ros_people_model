@@ -1,0 +1,4 @@
+sensor_msgs/Image image
+geometry_msgs/Point[] shape
+---
+float32[]             emotions

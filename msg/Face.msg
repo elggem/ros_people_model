@@ -1,7 +1,13 @@
-Header            header
-sensor_msgs/Image image
-int16[] bounding_box
-float32           certainty
+# Message type used for attributes of a face
+
+# Global fields:
+Header                header
+
+# World Coordinates
+float32
+
+
+# Attributes
+string                face_id
+float32[]             emotions
 geometry_msgs/Point[] shape
-string            face_id
-float32[]         emotions

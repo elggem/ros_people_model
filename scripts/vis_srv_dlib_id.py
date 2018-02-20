@@ -17,8 +17,6 @@ DLIB_RECOGNITION_MODEL_URL = "http://dlib.net/files/dlib_face_recognition_resnet
 FACE_ID_VECTOR_FILE = "/tmp/faces.pkl"
 FACE_ID_VECTOR_DICT = None
 
-ANALYSIS_FRATE = 1.0/30.0
-
 def initializeModels():
     urlOpener = urllib.URLopener()
     if not os.path.exists("/tmp/dlib"):
@@ -29,8 +27,6 @@ def initializeModels():
         urlOpener.retrieve(DLIB_RECOGNITION_MODEL_URL, DLIB_RECOGNITION_MODEL_FILE)
         data = bz2.BZ2File(DLIB_RECOGNITION_MODEL_FILE).read() # get the decompressed data
         open(DLIB_RECOGNITION_MODEL_FILE, 'wb').write(data) # write a uncompressed file
-
-
 
 def initializeFaceID():
     # Determines if there is pickled face recognition array on disk and restores it.
@@ -81,12 +77,7 @@ def getFaceID(face_vec, position, timestamp, threshold=0.6):
     persistFaceID()
 
 
-def imageCallback(data):
-    global IMAGE
-    IMAGE = bridge.imgmsg_to_cv2(data, "bgr8")
-
-
-def faceAnalysis(event):
+def faceIdService(req):
     global IMAGE, FACE_CANDIDATES_CNN, FACE_CANDIDATES_FRONTAL, FACE_CANDIDATES_SIDEWAYS
 
     for k, d in enumerate(FACE_CANDIDATES_FRONTAL):
@@ -112,14 +103,14 @@ if __name__ == "__main__":
     initializeModel()
     initializeFaceID()
 
-    rospy.init_node('vis_dlib_id', anonymous=True)
+    rospy.init_node('vis_srv_dlib_id', anonymous=True)
 
     bridge = CvBridge()
 
     # Publishers
+    srv = rospy.Service('vis_srv_dlib_id', rospy_tutorials.srv.AddTwoInts, add_two_ints)
     pub = rospy.Publisher('vis_dlib_id', Attribute, queue_size=10)
     # Subscribers
-    rospy.Subscriber("/vis_dlib_shapes", Image, imageCallback)
 
     # Dlib
     dlib_face_recognizer = dlib.face_recognition_model_v1(DLIB_RECOGNITION_MODEL_FILE)
