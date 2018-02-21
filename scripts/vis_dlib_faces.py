@@ -74,7 +74,7 @@ def faceDetectFrontalCallback(event):
 
             # iCog Services
             ftr.emotions = srv_icog_emopy(feature.crop).emotions
-            #feature.eyestate = srv_dlib_faceid(feature.crop, feature.shapes)
+            ftr.eyes_closed = srv_icog_eyestate(feature.crop).eyes_closed
 
             features.features.append(ftr)
 
@@ -105,6 +105,7 @@ if __name__ == "__main__":
     rospy.wait_for_service('vis_srv_dlib_shapes')
     rospy.wait_for_service('vis_srv_dlib_id')
     rospy.wait_for_service('vis_srv_icog_emopy')
+    rospy.wait_for_service('vis_srv_icog_eyestate')
 
     # Launch detectors
     rospy.Timer(rospy.Duration(FRONTAL_FRATE), faceDetectFrontalCallback)

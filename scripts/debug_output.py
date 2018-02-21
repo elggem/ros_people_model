@@ -60,6 +60,10 @@ def debugDraw(self):
                 cv2.rectangle(frame, (d.x_offset + (p*20),      d.y_offset+d.height + (int(emo*80))),
                                      (d.x_offset + (p*20) + 20, d.y_offset+d.height), emo_clr, -1)
 
+            for p, eye in enumerate(ftr.eyes_closed):
+                cv2.rectangle(frame, (200+d.x_offset + (p*20),      d.y_offset+d.height + (int(eye*80))),
+                                     (200+d.x_offset + (p*20) + 20, d.y_offset+d.height), shp_clr, -1)
+
     cv2.imshow("Image",frame)
     if (cv2.waitKey(10) & 0xFF == ord('q')):
         return

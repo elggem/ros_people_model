@@ -10,12 +10,13 @@
   <node name="vis_dlib_faces" pkg="ros_peoplemodel" type="vis_dlib_faces.py" output="screen">
     <param name="topic_name" value="/people/vis_dlib_cnn" />
     <param name="scale" type="double" value="0.4" />
-    <param name="fps" type="double" value="5.0" />
+    <param name="fps" type="double" value="30.0" />
   </node>
 
   <node name="vis_srv_dlib_shapes" pkg="ros_peoplemodel" type="vis_srv_dlib_shapes.py" output="screen" />
   <node name="vis_srv_dlib_id" pkg="ros_peoplemodel" type="vis_srv_dlib_id.py" output="screen" />
   <node name="vis_srv_icog_emopy" pkg="ros_peoplemodel" type="vis_srv_icog_emopy.py" output="screen" />
+  <node name="vis_srv_icog_eyestate" pkg="ros_peoplemodel" type="vis_srv_icog_eyestate.py" output="screen" />
 
   <node name="debug_output" pkg="ros_peoplemodel" type="debug_output.py" output="screen" />
 
