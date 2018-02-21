@@ -20,16 +20,19 @@ find_package(catkin REQUIRED COMPONENTS std_msgs sensor_msgs geometry_msgs messa
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  Features.msg
   Face.msg
-  People.msg
+  Faces.msg
+  Feature.msg
+  Features.msg
 )
 
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
-  Emopy.srv
-  FaceID.srv
+  DlibFaceID.srv
+  DlibShapes.srv
+  iCogEyeState.srv
+  iCogEmopy.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -44,6 +47,8 @@ generate_messages(
   DEPENDENCIES
   std_msgs
   sensor_msgs
+  ros_peoplemodel
+  geometry_msgs
 )
 
 ################################################

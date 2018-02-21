@@ -6,9 +6,15 @@ import numpy as np
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 
+from ros_peoplemodel.msg import Feature
 from ros_peoplemodel.msg import Features
 from sensor_msgs.msg import RegionOfInterest
 from sensor_msgs.msg import Image
+
+from ros_peoplemodel.srv import DlibFaceID
+from ros_peoplemodel.srv import DlibShapes
+from ros_peoplemodel.srv import iCogEmopy
+from ros_peoplemodel.srv import iCogEyeState
 
 FACE_CANDIDATES_CNN = None
 
@@ -40,26 +46,37 @@ def faceDetectFrontalCallback(event):
 
     features = Features()
     features.image = FACE_CANDIDATES_CNN.image
-    features.crops = []
-    features.rois = []
+    features.features = []
 
     #goes through list and only saves the one
-    for k, crop_img in enumerate(FACE_CANDIDATES_CNN.crops):
-        crop = bridge.imgmsg_to_cv2(crop_img, "8UC3")
+    for k, feature in enumerate(FACE_CANDIDATES_CNN.features):
+        crop = bridge.imgmsg_to_cv2(feature.crop, "8UC3")
         dets = performFaceDetection(crop, scale=FRONTAL_SCALE)
 
         if len(dets)==1:
             d = dets[0]
 
-            roi = RegionOfInterest()
-            roi.x_offset = np.maximum(FACE_CANDIDATES_CNN.rois[k].x_offset + d.left(), 0)
-            roi.y_offset = np.maximum(FACE_CANDIDATES_CNN.rois[k].y_offset + d.top(), 0)
-            roi.height =   np.maximum(d.bottom() - d.top(), 0)
-            roi.width =    np.maximum(d.right() - d.left(), 0)
+            ftr = Feature()
 
-            features.rois.append(roi)
-            features.crops.append(bridge.cv2_to_imgmsg(np.array(IMAGE[roi.y_offset:roi.y_offset+roi.height,
-                                                                     roi.x_offset:roi.x_offset+roi.width, :])))
+            roi = RegionOfInterest()
+            roi.x_offset = max(feature.roi.x_offset + d.left(), 0)
+            roi.y_offset = max(feature.roi.y_offset + d.top(), 0)
+            roi.height =   max(d.bottom() - d.top(), 0)
+            roi.width =    max(d.right() - d.left(), 0)
+
+            ftr.roi = roi
+            ftr.crop = bridge.cv2_to_imgmsg(np.array(IMAGE[roi.y_offset:roi.y_offset+roi.height,
+                                                               roi.x_offset:roi.x_offset+roi.width, :]))
+
+            # Dlib Services
+            ftr.shapes = srv_dlib_shapes(feature.crop).shape
+            #feature.face_id = srv_dlib_faceid(feature.crop, feature.shapes)
+
+            # iCog Services
+            #feature.emotions = srv_dlib_faceid(feature.crop, feature.shapes)
+            #feature.eyestate = srv_dlib_faceid(feature.crop, feature.shapes)
+
+            features.features.append(ftr)
 
     pub.publish(features)
 
@@ -68,7 +85,8 @@ if __name__ == "__main__":
     bridge = CvBridge()
 
     FRONTAL_SCALE = rospy.get_param('~scale', 0.4)
-    FRONTAL_FRATE = rospy.get_param('~rate', 1.0/8.0)
+    FRONTAL_FRATE = 1.0/rospy.get_param('~fps', 5.0)
+
 
     # Publishers
     pub = rospy.Publisher('vis_dlib_frontal', Features, queue_size=10)
@@ -77,6 +95,14 @@ if __name__ == "__main__":
 
     # Dlib
     dlib_detector = dlib.get_frontal_face_detector()
+
+    # Attribute Services
+    srv_dlib_shapes = rospy.ServiceProxy('vis_srv_dlib_shapes', DlibShapes, persistent=True)
+    srv_dlib_faceid = rospy.ServiceProxy('vis_srv_dlib_faceid', DlibFaceID, persistent=False)
+    srv_icog_eyestate = rospy.ServiceProxy('vis_srv_icog_eyestate', iCogEyeState, persistent=True)
+    srv_icog_emopy = rospy.ServiceProxy('vis_srv_icog_emopy', iCogEmopy, persistent=True)
+
+    rospy.wait_for_service('vis_srv_dlib_shapes')
 
     # Launch detectors
     rospy.Timer(rospy.Duration(FRONTAL_FRATE), faceDetectFrontalCallback)

@@ -9,6 +9,7 @@ import os
 import bz2
 from cv_bridge import CvBridge, CvBridgeError
 
+from ros_peoplemodel.msg import Feature
 from ros_peoplemodel.msg import Features
 from sensor_msgs.msg import RegionOfInterest
 from sensor_msgs.msg import Image
@@ -58,11 +59,12 @@ def faceDetectCNNCallback(event):
 
     features = Features()
     features.image = bridge.cv2_to_imgmsg(np.array(IMAGE))
-    features.crops = []
-    features.rois = []
+    features.features = []
 
     for k, d in enumerate(cnn_results):
         padding = int(IMAGE.shape[0]*CNN_PADDING)
+
+        feature = Feature()
 
         roi = RegionOfInterest()
         roi.x_offset = np.maximum(d.left() - padding, 0)
@@ -70,9 +72,11 @@ def faceDetectCNNCallback(event):
         roi.height = np.minimum(d.bottom() - roi.y_offset + padding, IMAGE.shape[0])
         roi.width = np.minimum(d.right()  - roi.x_offset + padding, IMAGE.shape[1])
 
-        features.rois.append(roi)
-        features.crops.append(bridge.cv2_to_imgmsg(np.array(IMAGE[roi.y_offset:roi.y_offset+roi.height,
-                                                                 roi.x_offset:roi.x_offset+roi.width, :])))
+        feature.roi = roi
+        feature.crop = bridge.cv2_to_imgmsg(np.array(IMAGE[roi.y_offset:roi.y_offset+roi.height,
+                                            roi.x_offset:roi.x_offset+roi.width, :]))
+
+        features.features.append(feature)
 
     pub.publish(features)
 
@@ -84,7 +88,7 @@ if __name__ == "__main__":
     bridge = CvBridge()
 
     CNN_SCALE = rospy.get_param('~scale', 0.4)
-    CNN_FRATE = rospy.get_param('~rate', 1.0/5.0)
+    CNN_FRATE = 1.0/rospy.get_param('~fps', 5.0)
     CNN_PADDING = rospy.get_param('~padding', 0.1)
 
     # Publishers

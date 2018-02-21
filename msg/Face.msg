@@ -1,13 +1,17 @@
-# Message type used for attributes of a face
+# Message type used for a face
 
 # Global fields:
-Header                header
+Header                    header
 
-# World Coordinates
-float32
+# Required fields:
+sensor_msgs/Image         crop
 
+# World coordinates:
+geometry_msgs/Point      global_coordinate
+float32                   certainty
 
 # Attributes
-string                face_id
-float32[]             emotions
-geometry_msgs/Point[] shape
+geometry_msgs/Point[]     shapes
+string                    face_ids
+float32[]                 emotions
+float32[]                 eyes_closed

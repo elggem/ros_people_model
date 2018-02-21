@@ -4,6 +4,8 @@ http://docs.ros.org/api/image_geometry/html/python/
 use projection to map pixel lvl results into coordinate system and align with pose.
 
 
+Can optinally receive /pose topic from orb2slam or pauposeestimator
+
 """
 
 #!/usr/bin/python

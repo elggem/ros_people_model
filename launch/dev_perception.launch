@@ -1,31 +1,22 @@
-
 <launch>
-<!--  <node name="camera" pkg="usb_cam" type="usb_cam_node" output="log">
-    <param name="video_device" value="/dev/video0" />
-    <param name="pixel_format" value="mjpeg" />
-    <param name="image_width" value="640" />
-    <param name="image_height" value="480" />
-    <param name="framerate" value="30" />
-
-  </node>-->
-
 
   <node name="debug_output" pkg="ros_peoplemodel" type="debug_output.py" output="screen" />
 
   <node name="pau_pose_estimator" pkg="ros_peoplemodel" type="pau_pose_estimator.py" output="screen" />
 
+  <node name="vis_srv_dlib_shapes" pkg="ros_peoplemodel" type="vis_srv_dlib_shapes.py" output="screen" />
+
   <node name="vis_dlib_cnn" pkg="ros_peoplemodel" type="vis_dlib_cnn.py" output="screen">
     <param name="topic_name" value="/camera/image_raw" />
     <param name="scale" type="double" value="0.2" />
-    <param name="rate" type="double" value="0.2" />
+    <param name="fps" type="double" value="5.0" />
     <param name="padding" type="double" value="0.1" />
   </node>
 
-
-  <node name="vis_dlib_frontal" pkg="ros_peoplemodel" type="vis_dlib_frontal.py" output="screen">
+  <node name="vis_dlib_faces" pkg="ros_peoplemodel" type="vis_dlib_faces.py" output="screen">
     <param name="topic_name" value="/people/vis_dlib_cnn" />
     <param name="scale" type="double" value="0.4" />
-    <param name="rate" type="double" value="0.2" />
+    <param name="fps" type="double" value="5.0" />
   </node>
 
 <!--

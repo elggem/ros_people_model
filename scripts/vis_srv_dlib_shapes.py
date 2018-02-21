@@ -4,12 +4,16 @@ import sys
 import dlib
 import numpy as np
 import cv2
+import urllib
+import os
+import bz2
 from cv_bridge import CvBridge, CvBridgeError
 
 from sensor_msgs.msg import Image
-from std_msgs.msg import String
 from geometry_msgs.msg import Point
-from ros_slopp.msg import Face
+
+from ros_peoplemodel.srv import DlibShapes
+from ros_peoplemodel.srv import DlibShapesResponse
 
 DLIB_SHAPE_MODEL_FILE = "/tmp/dlib/shape_predictor.dat"
 DLIB_SHAPE_MODEL_URL = "http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2"
@@ -27,51 +31,26 @@ def initializeModel():
         data = bz2.BZ2File(DLIB_SHAPE_MODEL_FILE).read() # get the decompressed data
         open(DLIB_SHAPE_MODEL_FILE, 'wb').write(data) # write a uncompressed file
 
+def handleRequest(req):
+    image = bridge.imgmsg_to_cv2(req.image, "8UC3")
+    d = dlib.rectangle(0, 0, image.shape[0], image.shape[1])
 
-def imageCallback(data):
-    global IMAGE
-    IMAGE = bridge.imgmsg_to_cv2(data, "bgr8")
+    shape = dlib_shape_predictor(image, d)
+    shape_as_points = [Point(p.x, p.y, 0) for p in shape.parts()]
 
-
-def faceAnalysis(event):
-    global IMAGE, FACE_CANDIDATES_CNN, FACE_CANDIDATES_FRONTAL, FACE_CANDIDATES_SIDEWAYS
-
-    for k, d in enumerate(FACE_CANDIDATES_FRONTAL):
-        face = Face()
-        cropped_face = IMAGE[d.top():d.bottom(), d.left():d.right(), :]
-
-        if len(cropped_face)==0 or len(cropped_face[0])==0:
-            continue
-
-        face.image = bridge.cv2_to_imgmsg(np.array(cropped_face))
-        face.bounding_box = [d.top(), d.bottom(), d.left(), d.right()]
-
-        # Get the shape
-        shape = dlib_shape_predictor(IMAGE, d)
-        face.shape = [Point(p.x, p.y, 0) for p in shape.parts()]
-
-        ## IN CASE WE WANNA SEE IT
-        faces.append(face)
-        pub.publish(face)
-
-
+    return DlibShapesResponse(shape_as_points)
 
 if __name__ == "__main__":
     initializeModel()
-    initializeFaceID()
-
-    rospy.init_node('vis_dlib_shapes', anonymous=True)
 
     bridge = CvBridge()
-    # Publishers
-    pub = rospy.Publisher('vis_dlib_shapes', Shape, queue_size=10)
-    # Subscribers
-    rospy.Subscriber("/vis_dlib_frontal", Feature, imageCallback)
 
     # Dlib
     dlib_shape_predictor = dlib.shape_predictor(DLIB_SHAPE_MODEL_FILE)
 
-    # Launch detectors
-    rospy.Timer(rospy.Duration(ANALYSIS_FRATE), faceAnalysis)
+    rospy.init_node('vis_srv_dlib_shapes_server')
+
+    # Service
+    srv = rospy.Service('vis_srv_dlib_shapes', DlibShapes, handleRequest)
 
     rospy.spin()
