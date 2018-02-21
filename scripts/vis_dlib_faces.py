@@ -70,10 +70,10 @@ def faceDetectFrontalCallback(event):
 
             # Dlib Services
             ftr.shapes = srv_dlib_shapes(feature.crop).shape
-            #feature.face_id = srv_dlib_faceid(feature.crop, feature.shapes)
+            ftr.face_id = srv_dlib_faceid(feature.crop, ftr.shapes).face_id
 
             # iCog Services
-            #feature.emotions = srv_dlib_faceid(feature.crop, feature.shapes)
+            ftr.emotions = srv_icog_emopy(feature.crop).emotions
             #feature.eyestate = srv_dlib_faceid(feature.crop, feature.shapes)
 
             features.features.append(ftr)
@@ -98,11 +98,13 @@ if __name__ == "__main__":
 
     # Attribute Services
     srv_dlib_shapes = rospy.ServiceProxy('vis_srv_dlib_shapes', DlibShapes, persistent=True)
-    srv_dlib_faceid = rospy.ServiceProxy('vis_srv_dlib_faceid', DlibFaceID, persistent=False)
-    srv_icog_eyestate = rospy.ServiceProxy('vis_srv_icog_eyestate', iCogEyeState, persistent=True)
+    srv_dlib_faceid = rospy.ServiceProxy('vis_srv_dlib_id', DlibFaceID, persistent=True)
     srv_icog_emopy = rospy.ServiceProxy('vis_srv_icog_emopy', iCogEmopy, persistent=True)
+    srv_icog_eyestate = rospy.ServiceProxy('vis_srv_icog_eyestate', iCogEyeState, persistent=True)
 
     rospy.wait_for_service('vis_srv_dlib_shapes')
+    rospy.wait_for_service('vis_srv_dlib_id')
+    rospy.wait_for_service('vis_srv_icog_emopy')
 
     # Launch detectors
     rospy.Timer(rospy.Duration(FRONTAL_FRATE), faceDetectFrontalCallback)

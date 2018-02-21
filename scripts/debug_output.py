@@ -54,7 +54,7 @@ def debugDraw(self):
                 cv2.putText(frame, ftr.face_id[:5], (d.x_offset + 10, d.y_offset + 10), cv2.FONT_HERSHEY_PLAIN, 0.9,txt_clr)
 
             for p in ftr.shapes:
-                cv2.circle(frame, (int(d.x_offset+p.x), int(d.y_offset+p.y)), 2, shp_clr)
+                cv2.circle(frame, (int(d.x_offset+(p.x*0.2)), int(d.y_offset+(p.y*0.2))), 1, shp_clr)
 
             for p, emo in enumerate(ftr.emotions):
                 cv2.rectangle(frame, (d.x_offset + (p*20),      d.y_offset+d.height + (int(emo*80))),

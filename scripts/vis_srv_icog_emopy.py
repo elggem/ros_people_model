@@ -2,31 +2,34 @@
 import sys
 import dlib
 from skimage import io
-
 import rospy
+import numpy as np
+from cv_bridge import CvBridge, CvBridgeError
+import os.path
+import urllib
+import pickle
+import uuid
+import bz2
+import cv2
+import time
+
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
 from geometry_msgs.msg import Point
-from ros_slopp.msg import Face
 
-import numpy as np
-from cv_bridge import CvBridge, CvBridgeError
-
-import os.path
-import urllib
-
-import pickle
-import uuid
-
-import bz2
-import cv2
-
-import time
+from ros_peoplemodel.srv import iCogEmopy
+from ros_peoplemodel.srv import iCogEmopyResponse
 
 current_milli_time = lambda: int(round(time.time() * 1000))
 
+#-------------------------- set gpu using tf ---------------------------
+import tensorflow as tf
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+session = tf.Session(config=config)
+#-------------------  start importing keras module ---------------------
+import keras.backend.tensorflow_backend as K
 from keras.models import model_from_json
-
 
 
 EMOPY_AVA_JSON_FILE = "/tmp/dlib/ava.json"
@@ -34,6 +37,8 @@ EMOPY_AVA_MODEL_FILE = "/tmp/dlib/ava.h5"
 
 EMOPY_AVA_JSON_URL = "https://raw.githubusercontent.com/mitiku1/Emopy-Models/master/models/ava.json"
 EMOPY_AVA_MODEL_URL = "https://raw.githubusercontent.com/mitiku1/Emopy-Models/master/models/ava.h5"
+DLIB_SHAPE_MODEL_FILE = "/tmp/dlib/shape_predictor.dat"
+DLIB_SHAPE_MODEL_URL = "http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2"
 
 EMOTION_STATES = {
     0 : "neutral" ,
@@ -53,10 +58,17 @@ EMOTIONS = {
 THRESH_HOLD = 0.5
 IMG_SIZE = (48,48)
 
+
 def initializeModels():
     urlOpener = urllib.URLopener()
     if not os.path.exists("/tmp/dlib"):
         os.makedirs("/tmp/dlib")
+
+    if not os.path.isfile(DLIB_SHAPE_MODEL_FILE):
+        print("downloading %s" % DLIB_SHAPE_MODEL_URL)
+        urlOpener.retrieve(DLIB_SHAPE_MODEL_URL, DLIB_SHAPE_MODEL_FILE)
+        data = bz2.BZ2File(DLIB_SHAPE_MODEL_FILE).read() # get the decompressed data
+        open(DLIB_SHAPE_MODEL_FILE, 'wb').write(data) # write a uncompressed file
 
     if not os.path.isfile(EMOPY_AVA_JSON_FILE):
         print("downloading %s" % EMOPY_AVA_JSON_URL)
@@ -65,7 +77,6 @@ def initializeModels():
     if not os.path.isfile(EMOPY_AVA_MODEL_FILE):
         print("downloading %s" % EMOPY_AVA_MODEL_URL)
         urlOpener.retrieve(EMOPY_AVA_MODEL_URL, EMOPY_AVA_MODEL_FILE)
-
 
 
 def sanitize(image):
@@ -254,56 +265,17 @@ def recognize_emotion(model,predictor,face,model_type="ava"):
     return predictions
 
 
-
-
-
-def imageCallback(data):
-    global IMAGE
-    IMAGE = bridge.imgmsg_to_cv2(data, "bgr8")
-
-
-
-
-
-def faceAnalysis(event):
-    global IMAGE, FACE_CANDIDATES_CNN, FACE_CANDIDATES_FRONTAL, FACE_CANDIDATES_SIDEWAYS
-
-    for k, d in enumerate(FACE_CANDIDATES_SIDEWAYS):
-        face = Face()
-        cropped_face = IMAGE[d.top():d.bottom(), d.left():d.right(), :]
-        #face.image = bridge.cv2_to_imgmsg(np.array(cropped_face))
-        face.bounding_box = [d.top(), d.bottom(), d.left(), d.right()]
-        face.face_id = "None"
-        pub.publish(face)
-
-    faces = []
-
-    for k, d in enumerate(FACE_CANDIDATES_FRONTAL):
-        face = Face()
-        cropped_face = IMAGE[d.top():d.bottom(), d.left():d.right(), :]
-
-        if len(cropped_face)==0 or len(cropped_face[0])==0:
-            continue
-        with graph.as_default():
-            face.emotions = recognize_emotion(emopy_model, dlib_shape_predictor, cropped_face)
-
-        ## IN CASE WE WANNA SEE IT
-        faces.append(face)
-        pub.publish(face)
-
+def handleRequest(req):
+    image = bridge.imgmsg_to_cv2(req.image, "8UC3")
+    with graph.as_default():
+        emotions = recognize_emotion(emopy_model, dlib_shape_predictor, image)
+    return iCogEmopyResponse(emotions)
 
 if __name__ == "__main__":
     initializeModels()
-    initializeFaceID()
-
-    rospy.init_node('dlib_node', anonymous=True)
-
     bridge = CvBridge()
 
-    # Publishers
-    pub = rospy.Publisher('faces', Face, queue_size=10)
-    # Subscribers
-    rospy.Subscriber("/camera/image_raw", Image, imageCallback)
+    dlib_shape_predictor = dlib.shape_predictor(DLIB_SHAPE_MODEL_FILE)
 
     # emopy
     with open(EMOPY_AVA_JSON_FILE) as model_file:
@@ -312,9 +284,7 @@ if __name__ == "__main__":
 
     graph = tf.get_default_graph()
 
-    # Launch detectors
-    rospy.Timer(rospy.Duration(CNN_FRATE), faceDetectCNNCallback)
-    rospy.Timer(rospy.Duration(FRONTAL_FRATE), faceDetectFrontalCallback)
-    rospy.Timer(rospy.Duration(ANALYSIS_FRATE), faceAnalysis)
+    rospy.init_node('vis_srv_icog_emopy_server', anonymous=True)
+    srv = rospy.Service('vis_srv_icog_emopy', iCogEmopy, handleRequest)
 
     rospy.spin()

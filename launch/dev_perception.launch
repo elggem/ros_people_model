@@ -1,11 +1,5 @@
 <launch>
 
-  <node name="debug_output" pkg="ros_peoplemodel" type="debug_output.py" output="screen" />
-
-  <node name="pau_pose_estimator" pkg="ros_peoplemodel" type="pau_pose_estimator.py" output="screen" />
-
-  <node name="vis_srv_dlib_shapes" pkg="ros_peoplemodel" type="vis_srv_dlib_shapes.py" output="screen" />
-
   <node name="vis_dlib_cnn" pkg="ros_peoplemodel" type="vis_dlib_cnn.py" output="screen">
     <param name="topic_name" value="/camera/image_raw" />
     <param name="scale" type="double" value="0.2" />
@@ -19,17 +13,12 @@
     <param name="fps" type="double" value="5.0" />
   </node>
 
-<!--
-  <node name="vis_dlib_frontal" pkg="ros_peoplemodel" type="vis_dlib_frontal" output="log">
-    <param name="resolution" value="0.5" />
-    <param name="framerate" value="5" />
-  </node>
+  <node name="vis_srv_dlib_shapes" pkg="ros_peoplemodel" type="vis_srv_dlib_shapes.py" output="screen" />
+  <node name="vis_srv_dlib_id" pkg="ros_peoplemodel" type="vis_srv_dlib_id.py" output="screen" />
+  <node name="vis_srv_icog_emopy" pkg="ros_peoplemodel" type="vis_srv_icog_emopy.py" output="screen" />
 
-  <node name="vis_dlib_shapes" pkg="ros_peoplemodel" type="vis_dlib_frontal" output="log">
-    <param name="resolution" value="0.5" />
-    <param name="framerate" value="5" />
-  </node>
+  <node name="debug_output" pkg="ros_peoplemodel" type="debug_output.py" output="screen" />
 
-  ...
--->
+  <node name="pau_pose_estimator" pkg="ros_peoplemodel" type="pau_pose_estimator.py" output="screen" />
+
 </launch>

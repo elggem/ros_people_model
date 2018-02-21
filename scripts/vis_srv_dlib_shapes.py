@@ -18,7 +18,6 @@ from ros_peoplemodel.srv import DlibShapesResponse
 DLIB_SHAPE_MODEL_FILE = "/tmp/dlib/shape_predictor.dat"
 DLIB_SHAPE_MODEL_URL = "http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2"
 
-ANALYSIS_FRATE = 1.0/30.0
 
 def initializeModel():
     urlOpener = urllib.URLopener()
@@ -42,15 +41,10 @@ def handleRequest(req):
 
 if __name__ == "__main__":
     initializeModel()
-
     bridge = CvBridge()
-
-    # Dlib
     dlib_shape_predictor = dlib.shape_predictor(DLIB_SHAPE_MODEL_FILE)
 
     rospy.init_node('vis_srv_dlib_shapes_server')
-
-    # Service
     srv = rospy.Service('vis_srv_dlib_shapes', DlibShapes, handleRequest)
 
     rospy.spin()
