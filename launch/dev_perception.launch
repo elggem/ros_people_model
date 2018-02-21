@@ -18,8 +18,9 @@
   <node name="vis_srv_icog_emopy" pkg="ros_peoplemodel" type="vis_srv_icog_emopy.py" output="screen" />
   <node name="vis_srv_icog_eyestate" pkg="ros_peoplemodel" type="vis_srv_icog_eyestate.py" output="screen" />
 
-  <node name="debug_output" pkg="ros_peoplemodel" type="debug_output.py" output="screen" />
+  <node name="vis_debug" pkg="ros_peoplemodel" type="vis_debug.py" output="screen" />
 
+  <!--
   <node name="pau_pose_estimator" pkg="ros_peoplemodel" type="pau_pose_estimator.py" output="screen" />
-
+  -->
 </launch>
