@@ -87,7 +87,6 @@ if __name__ == "__main__":
     FRONTAL_SCALE = rospy.get_param('~scale', 0.4)
     FRONTAL_FRATE = 1.0/rospy.get_param('~fps', 5.0)
 
-
     # Publishers
     pub = rospy.Publisher('vis_dlib_frontal', Features, queue_size=10)
     # Subscribers
