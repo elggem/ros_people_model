@@ -403,13 +403,13 @@ def recognize_eyestate(image):
     left_prediction = model.predict([l_i,lkp,ld,la])[0]
     right_prediction = model.predict([r_i,rkp,rd,ra])[0]
 
-    #left_arg_max = np.argmax(left_prediction)
-    #right_arg_max = np.argmax(right_prediction)
+    left_arg_max = np.argmax(left_prediction)
+    right_arg_max = np.argmax(right_prediction)
 
-    left_closed = ((-left_prediction[1] + left_prediction[0] ) / 2.0 ) + 0.5
-    right_closed = ((-right_prediction[1] + right_prediction[0] ) / 2.0 ) + 0.5
+    #left_closed = ((-left_prediction[1] + left_prediction[0] ) / 2.0 ) + 0.5
+    #right_closed = ((-right_prediction[1] + right_prediction[0] ) / 2.0 ) + 0.5
 
-    return iCogEyeStateResponse([left_closed, right_closed])
+    return iCogEyeStateResponse([left_arg_max, right_arg_max])
 
 def handleRequest(req):
     image = bridge.imgmsg_to_cv2(req.image, "8UC3")

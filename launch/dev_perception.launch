@@ -9,7 +9,7 @@
 
   <node name="vis_dlib_faces" pkg="ros_peoplemodel" type="vis_dlib_faces.py" output="screen">
     <param name="topic_name" value="/people/vis_dlib_cnn" />
-    <param name="scale" type="double" value="0.4" />
+    <param name="scale" type="double" value="0.3" />
     <param name="fps" type="double" value="20.0" />
   </node>
 
