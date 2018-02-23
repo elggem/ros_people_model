@@ -17,7 +17,6 @@ from ros_peoplemodel.srv import iCogEmopy
 from ros_peoplemodel.srv import iCogEyeState
 
 FACE_CANDIDATES_CNN = None
-CURRENT_FEATURES = None
 
 def performFaceDetection(img, scale=1.0):
     if scale is not 1.0:
@@ -38,12 +37,9 @@ def featuresCallback(features):
 
 
 def faceDetectFrontalCallback(event):
-    global FACE_CANDIDATES_CNN, CURRENT_FEATURES
+    global FACE_CANDIDATES_CNN
 
     if FACE_CANDIDATES_CNN is None:
-        return
-
-    if CURRENT_FEATURES is not None:
         return
 
     IMAGE = bridge.imgmsg_to_cv2(FACE_CANDIDATES_CNN.image, "8UC3")
@@ -72,54 +68,17 @@ def faceDetectFrontalCallback(event):
             ftr.crop = bridge.cv2_to_imgmsg(np.array(IMAGE[roi.y_offset:roi.y_offset+roi.height,
                                                                roi.x_offset:roi.x_offset+roi.width, :]))
 
+            # Dlib Services
+            ftr.shapes = srv_dlib_shapes(feature.crop).shape
+            ftr.face_id = srv_dlib_faceid(feature.crop, ftr.shapes).face_id
+
+            # iCog Services
+            ftr.emotions = srv_icog_emopy(feature.crop).emotions
+            ftr.eyes_closed = srv_icog_eyestate(feature.crop).eyes_closed
+
             features.features.append(ftr)
 
-    CURRENT_FEATURES = features
-
-    rospy.Timer(rospy.Duration(0.000001), doServiceShapes, oneshot=True)
-    rospy.Timer(rospy.Duration(0.000001), doServiceEmopy, oneshot=True)
-    rospy.Timer(rospy.Duration(0.000001), doServiceEyesClosed, oneshot=True)
-
-
-def checkIfMessagesComplete():
-    global CURRENT_FEATURES
-    if CURRENT_FEATURES is None:
-        return
-
-
-    for ftr in CURRENT_FEATURES.features:
-        if ftr.shapes == [] or ftr.face_id == '' or ftr.emotions == [] or ftr.eyes_closed == []:
-           return
-
-    pub.publish(CURRENT_FEATURES)
-    CURRENT_FEATURES = None
-
-
-def doServiceShapes(self):
-    global CURRENT_FEATURES
-    if CURRENT_FEATURES is None:
-        return
-    for ftr in CURRENT_FEATURES.features:
-        ftr.shapes = srv_dlib_shapes(ftr.crop).shape
-        ftr.face_id = srv_dlib_faceid(ftr.crop, ftr.shapes).face_id
-    checkIfMessagesComplete()
-
-def doServiceEmopy(self):
-    global CURRENT_FEATURES
-    if CURRENT_FEATURES is None:
-        return
-    for ftr in CURRENT_FEATURES.features:
-        ftr.emotions = srv_icog_emopy(ftr.crop).emotions
-    checkIfMessagesComplete()
-
-def doServiceEyesClosed(self):
-    global CURRENT_FEATURES
-    if CURRENT_FEATURES is None:
-        return
-    for ftr in CURRENT_FEATURES.features:
-        ftr.eyes_closed = srv_icog_eyestate(ftr.crop).eyes_closed
-    checkIfMessagesComplete()
-
+    pub.publish(features)
 
 if __name__ == "__main__":
     rospy.init_node('vis_dlib_frontal', anonymous=True)
