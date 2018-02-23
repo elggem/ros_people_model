@@ -1,4 +1,5 @@
 sensor_msgs/Image image
+sensor_msgs/RegionOfInterest roi
 geometry_msgs/Point[] shape
 ---
 string                face_id

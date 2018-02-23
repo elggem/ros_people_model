@@ -19,17 +19,11 @@ This is a perception architecture meant for social artificial intelligence and r
     - Hand pose estimation (open palm, fist, etc.)
   - Integration wih Masked RCNN architectures to detect various categories of objects in the hands of people.
 
-
-## Setup
-
-
 ## Dependencies
-### Dlib
-Cuda!
-### ORB2_SLAM
-Instructions...
 
-
+1. Install Nvidia drivers, [CUDA] and [cuDNN].
+2. Install [Dlib]() from source using graphics acceleration support
+3. Install tensorflow-gpu.
 
 ## Usage
 

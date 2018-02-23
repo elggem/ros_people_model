@@ -7,7 +7,7 @@ Header                    header
 sensor_msgs/Image         crop
 
 # World coordinates:
-geometry_msgs/Point      global_coordinate
+geometry_msgs/Point       position
 float32                   certainty
 
 # Attributes

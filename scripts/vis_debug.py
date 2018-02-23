@@ -73,19 +73,20 @@ def debugDraw(self):
 
             emo_dict = {}
 
-            for i, emotype in enumerate(EMOTIONS):
-                emo_dict[EMOTIONS[emotype]] = ftr.emotions[i]
+            if len(ftr.emotions)>0:
+                for i, emotype in enumerate(EMOTIONS):
+                    emo_dict[EMOTIONS[emotype]] = ftr.emotions[i]
 
-            p = 0
-            for emotype, emo in sorted(emo_dict.iteritems(), key=lambda (k,v): (v,k)):
-                cv2.rectangle(frame, (d.x_offset,                 d.y_offset + d.height - 7*20 + (p*20)),
-                                     (d.x_offset + (int(emo*80)), d.y_offset + d.height - 7*20 + (p*20) + 20), txt_clr, -1)
-                cv2.putText(frame, emotype, (d.x_offset, 15+ d.y_offset + d.height - 7*20+ (p*20)), cv2.FONT_HERSHEY_DUPLEX, 0.55,cnn_clr)
-                p += 1
+                p = 0
+                for emotype, emo in sorted(emo_dict.iteritems(), key=lambda (k,v): (v,k)):
+                    cv2.rectangle(frame, (d.x_offset,                 d.y_offset + d.height - 7*20 + (p*20)),
+                                         (d.x_offset + (int(emo*80)), d.y_offset + d.height - 7*20 + (p*20) + 20), txt_clr, -1)
+                    cv2.putText(frame, emotype, (d.x_offset, 15+ d.y_offset + d.height - 7*20+ (p*20)), cv2.FONT_HERSHEY_DUPLEX, 0.55,cnn_clr)
+                    p += 1
 
             for p, eye in enumerate(ftr.eyes_closed):
-                cv2.rectangle(frame, (220+d.x_offset + (p*20),      d.y_offset + (int(eye*80))),
-                                     (220+d.x_offset + (p*20) + 20, d.y_offset), shp_clr, -1)
+                cv2.rectangle(frame, (d.x_offset + (p*20),      d.y_offset + (int(eye*80))),
+                                     (d.x_offset + (p*20) + 20, d.y_offset), shp_clr, -1)
 
 
     cv2.imshow("Image",frame)

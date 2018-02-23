@@ -68,13 +68,25 @@ def faceDetectFrontalCallback(event):
             ftr.crop = bridge.cv2_to_imgmsg(np.array(IMAGE[roi.y_offset:roi.y_offset+roi.height,
                                                                roi.x_offset:roi.x_offset+roi.width, :]))
 
-            # Dlib Services
-            ftr.shapes = srv_dlib_shapes(feature.crop).shape
-            ftr.face_id = srv_dlib_faceid(feature.crop, ftr.shapes).face_id
+            try:
+                ftr.shapes = srv_dlib_shapes(ftr.crop).shape
+            except Exception:
+                pass
 
-            # iCog Services
-            ftr.emotions = srv_icog_emopy(feature.crop).emotions
-            ftr.eyes_closed = srv_icog_eyestate(feature.crop).eyes_closed
+            try:
+                ftr.face_id = srv_dlib_faceid(ftr.crop, ftr.roi, ftr.shapes).face_id
+            except Exception:
+                pass
+
+            try:
+                ftr.emotions = srv_icog_emopy(ftr.crop).emotions
+            except Exception:
+                pass
+
+            try:
+                ftr.eyes_closed = srv_icog_eyestate(ftr.crop).eyes_closed
+            except Exception:
+                pass
 
             features.features.append(ftr)
 
@@ -97,14 +109,14 @@ if __name__ == "__main__":
 
     # Attribute Services
     srv_dlib_shapes = rospy.ServiceProxy('vis_srv_dlib_shapes', DlibShapes, persistent=True)
-    srv_dlib_faceid = rospy.ServiceProxy('vis_srv_dlib_id', DlibFaceID, persistent=True)
+    srv_dlib_faceid = rospy.ServiceProxy('vis_srv_dlib_id', DlibFaceID, persistent=False)
     srv_icog_emopy = rospy.ServiceProxy('vis_srv_icog_emopy', iCogEmopy, persistent=True)
     srv_icog_eyestate = rospy.ServiceProxy('vis_srv_icog_eyestate', iCogEyeState, persistent=True)
 
-    rospy.wait_for_service('vis_srv_dlib_shapes')
-    rospy.wait_for_service('vis_srv_dlib_id')
-    rospy.wait_for_service('vis_srv_icog_emopy')
-    rospy.wait_for_service('vis_srv_icog_eyestate')
+    #rospy.wait_for_service('vis_srv_dlib_shapes')
+    #rospy.wait_for_service('vis_srv_dlib_id')
+    #rospy.wait_for_service('vis_srv_icog_emopy')
+    #rospy.wait_for_service('vis_srv_icog_eyestate')
 
     # Launch detectors
     rospy.Timer(rospy.Duration(FRONTAL_FRATE), faceDetectFrontalCallback)

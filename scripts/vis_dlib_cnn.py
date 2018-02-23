@@ -58,7 +58,10 @@ def faceDetectCNNCallback(event):
     cnn_results = performCNNFaceDetection(IMAGE, scale=CNN_SCALE)
 
     features = Features()
-    features.image = bridge.cv2_to_imgmsg(np.array(IMAGE))
+    try:
+        features.image = bridge.cv2_to_imgmsg(np.array(IMAGE))
+    except Exception:
+        pass
     features.features = []
 
     for k, d in enumerate(cnn_results):

@@ -63,6 +63,9 @@ def addFaceVectorToID(identifier, face_vec):
 def getFaceID(face_vec, position, timestamp, threshold=0.6):
     face_vec = np.array([i for i in face_vec])
 
+    #for identifier, stored in FACE_ID_VECTOR_DICT.iteritems():
+    #    print stored['position']
+
     # Compares given face vector with stored to determine match
     for identifier, stored in FACE_ID_VECTOR_DICT.iteritems():
         for stored_vector in stored['vector']:
@@ -75,15 +78,14 @@ def getFaceID(face_vec, position, timestamp, threshold=0.6):
     for identifier, stored in FACE_ID_VECTOR_DICT.iteritems():
         timedistance = np.abs(stored['timestamp'] - np.array(timestamp))
         spatialdistance = np.linalg.norm(stored['position'] - np.array(position))
-        print("times %.4f" % (spatialdistance))
-        if spatialdistance < 100.0 and timedistance < 1000:
+        print("spatial %.4f" % (spatialdistance))
+        print("time %.4f" % (timedistance))
+        if spatialdistance < 100.0 and timedistance < 200:
             print("adding new vector to face")
             addFaceVectorToID(identifier, face_vec)
             persistFaceID()
             return identifier
 
-
-    # TODO: Maybe add new face only on threshold.
     FACE_ID_VECTOR_DICT[uuid.uuid4().hex] = {'vector': [face_vec], 'position':np.array(position), 'timestamp':timestamp}
     persistFaceID()
 
@@ -94,12 +96,11 @@ def handleRequest(req):
 
     points = dlib.points()
     [points.append(dlib.point(int(p.x), int(p.y))) for p in req.shape]
-
     dlib_shape = dlib.full_object_detection(d, points)
 
     # Get the face descriptor
     face_descriptor = dlib_face_recognizer.compute_face_descriptor(image, dlib_shape)
-    face_id = getFaceID(face_descriptor, [d.top(), d.bottom(), d.left(), d.right()], current_milli_time())
+    face_id = getFaceID(face_descriptor, [req.roi.x_offset, req.roi.y_offset, req.roi.height, req.roi.width], current_milli_time())
 
     if face_id is None:
         face_id = ""
