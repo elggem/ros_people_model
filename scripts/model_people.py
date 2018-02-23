@@ -1,30 +1,20 @@
 #!/usr/bin/python
 import sys
 import rospy
-from ros_slopp.msg import Face
-
 import numpy as np
-
-import numpy as np
-import matplotlib.pyplot as plt
 import time, random
 import math
 from collections import deque
 
+from ros_peoplemodel.msg import Features
+from ros_peoplemodel.msg import Feature
+from ros_peoplemodel.msg import Face
+from ros_peoplemodel.msg import Faces
+from geometry_msgs.msg import Point
 
-EMOTIONS = {
-    0 : "anger",
-    1 : "disgust",
-    2 : "fear",
-    3 : "happy",
-    4 : "sad",
-    5 : "surprise",
-    6 : "neutral"
-}
+FACES = []
 
-ACTIVE_PEOPLE = {}
-
-def decayPeople(self):
+def updateModelDecay(self):
     global ACTIVE_PEOPLE
     to_remove = []
     for identifier, stored in ACTIVE_PEOPLE.iteritems():
@@ -34,42 +24,69 @@ def decayPeople(self):
     for rem in to_remove:
         del ACTIVE_PEOPLE[rem]
 
-def facePerceived(face):
-    global ACTIVE_PEOPLE
-    if face.face_id == "None":
-        for identifier, stored in ACTIVE_PEOPLE.iteritems():
-            distance = np.linalg.norm(np.array(stored['face'].bounding_box) - np.array(face.bounding_box))
-            if distance < 400:
-                stored['active'] += 0.01
-                stored['active'] = np.minimum(1.0, stored['active'])
-                return
-        return
-    else:
-        for identifier, stored in ACTIVE_PEOPLE.iteritems():
-            if identifier == face.face_id:
-                stored['active'] += 0.01
-                stored['active'] = np.minimum(1.0, stored['active'])
-                return
 
-    ACTIVE_PEOPLE[face.face_id] = {'face':face, 'active':0.1}
+def positionIsClose(p1,p2,close=0.5):
+    return np.linalg.norm([p1.x-p2.x, p1.y-p2.y, p1.z-p2.z]) < close
 
-def printPerceived(self):
-    global ACTIVE_PEOPLE
-    for identifier, stored in ACTIVE_PEOPLE.iteritems():
-        if stored['active'] > 0.1:
-            print("%s %.3f" % (identifier, stored['active']))
-            stored['face'].certainty = stored['active']
-            pub.publish(stored['face'])
-    print("---")
+def blendPositions(p1, p2, bld_pos=0.65, bld_z=0.95):
+    pt = Point()
+    pt.x = (p1.x * (1.0-bld_pos)) + (p2.x * bld_pos)
+    pt.y = (p1.y * (1.0-bld_pos)) + (p2.y * bld_pos)
+    pt.z = (p1.z * (1.0-bld_z)) + (p2.z * bld_z)
+    return pt
+
+
+def positionOfFeature(feature):
+    pt = Point()
+    pt.x = feature.roi.x_offset + (feature.roi.width / 2)
+    pt.y = feature.roi.y_offset + (feature.roi.height / 2)
+    pt.z = feature.roi.width * feature.roi.height * 0.00095
+    return pt
+
+def updateModelFromFeature(feature):
+    global FACES
+    for face in FACES:
+        featurePosition = positionOfFeature(feature)
+        if positionIsClose(featurePosition, face.position, 200.0):
+            print "old face"
+            face.position = blendPositions(featurePosition, face.position)
+            face.crop = feature.crop
+            face.shapes = feature.shapes
+            face.emotions = feature.emotions
+            face.eyes_closed = feature.eyes_closed
+            return
+
+    print "new face"
+    face = Face()
+    face.crop = feature.crop
+    face.position = positionOfFeature(feature)
+    face.shapes = feature.shapes
+    face.emotions = feature.emotions
+    face.eyes_closed = feature.eyes_closed
+    FACES.append(face)
+
+
+def featuresPerceived(features):
+    for feature in features.features:
+        updateModelFromFeature(feature)
+
+
+def publishFaces(self):
+    global FACES
+    fcs = Faces()
+    fcs.faces = FACES
+    pub.publish(fcs)
+
 
 if __name__ == "__main__":
-    rospy.init_node('dlib_node', anonymous=True)
+    rospy.init_node('model_people', anonymous=True)
 
-    pub = rospy.Publisher('people', Face, queue_size=10)
+    pub = rospy.Publisher('faces', Faces, queue_size=10)
 
-    rospy.Subscriber("/faces", Face, facePerceived)
+    #rospy.Subscriber("/people/vis_dlib_cnn", Features, featuresPerceived)
+    rospy.Subscriber("/vis_dlib_frontal", Features, featuresPerceived)
 
-    rospy.Timer(rospy.Duration(1.0/16.0), decayPeople)
-    rospy.Timer(rospy.Duration(1.0/8.0), printPerceived)
+    #rospy.Timer(rospy.Duration(1.0/16.0), updateModelDecay)
+    rospy.Timer(rospy.Duration(1.0/30.0), publishFaces)
 
     rospy.spin()
