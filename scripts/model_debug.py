@@ -52,6 +52,7 @@ def debugDraw(self):
         img = cv2.resize(img,(size,size))
         img = cv2.applyColorMap(img, cv2.COLORMAP_BONE)
 
+        img *=0.995
         cut_frame = frame[py:py+size, px:px+size, :]
         frame[py:py+size, px:px+size, :]  = img[:cut_frame.shape[0],:cut_frame.shape[1],:]
 
