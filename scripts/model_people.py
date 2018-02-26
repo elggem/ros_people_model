@@ -31,7 +31,7 @@ def updateModelDecay(self):
 def positionIsClose(p1,p2,close=0.5):
     return np.linalg.norm([p1.x-p2.x, p1.y-p2.y, p1.z-p2.z]) < close
 
-def blendPositions(p1, p2, bld_pos=0.45, bld_z=0.95):
+def blendPositions(p1, p2, bld_pos=0.35, bld_z=0.95):
     pt = Point()
     pt.x = (p1.x * (1.0-bld_pos)) + (p2.x * bld_pos)
     pt.y = (p1.y * (1.0-bld_pos)) + (p2.y * bld_pos)

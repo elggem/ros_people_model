@@ -41,7 +41,9 @@ def debugDraw(self):
 
     frame = IMAGE.copy()
     frame = cv2.applyColorMap(frame, cv2.COLORMAP_OCEAN)
-    frame = cv2.blur(frame,(10,10))
+    frame = cv2.blur(frame,(6,6))
+
+    overlay = frame.copy()
 
     for face in FACES:
         size = int(face.position.z*4)
@@ -52,9 +54,11 @@ def debugDraw(self):
         img = cv2.resize(img,(size,size))
         img = cv2.applyColorMap(img, cv2.COLORMAP_BONE)
 
-        img *=0.995
-        cut_frame = frame[py:py+size, px:px+size, :]
-        frame[py:py+size, px:px+size, :]  = img[:cut_frame.shape[0],:cut_frame.shape[1],:]
+        cut_frame = overlay[py:py+size, px:px+size, :]
+        overlay[py:py+size, px:px+size, :]  = img[:cut_frame.shape[0],:cut_frame.shape[1],:]
+
+        alpha = np.minimum(1.5, 0.5 + face.certainty * 2.0)
+        cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
 
         cv2.circle(frame, (int(face.position.x), int(face.position.y)), 10, cnn_clr)
         cv2.putText(frame, "%.2f" % (face.certainty), (px + 10, py - 25), cv2.FONT_HERSHEY_PLAIN, 0.9,txt_clr)
@@ -71,8 +75,8 @@ def debugDraw(self):
             p = 0
             for emotype, emo in sorted(emo_dict.iteritems(), key=lambda (k,v): (v,k)):
                 cv2.rectangle(frame, (px,                 py + size - 7*20 + (p*20)),
-                                     (px + (int(emo*80)), py + size - 7*20 + (p*20) + 20), txt_clr, -1)
-                cv2.putText(frame, emotype, (px, 15+ py + size - 7*20+ (p*20)), cv2.FONT_HERSHEY_DUPLEX, 0.55,cnn_clr)
+                                     (px - (int(emo*80)), py + size - 7*20 + (p*20) + 20), txt_clr, -1)
+                cv2.putText(frame, emotype, (px - 100, 15+ py + size - 7*20+ (p*20)), cv2.FONT_HERSHEY_DUPLEX, 0.55,cnn_clr)
                 p += 1
 
         for p, eye in enumerate(face.eyes_closed):
