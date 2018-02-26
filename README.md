@@ -9,7 +9,7 @@ This is a collection of perception scripts primarily aimed at use in a  social r
   - Emotion recognition using [iCog Emopy](https://github.com/mitiku1/Emopy)
   - Eyes closed detection based on [iCog EyeState Detection](https://github.com/mitiku1/EyeStateDetection)
 
-![Diagram Architecture](https://raw.githubusercontent.com/elggem/ros_slopp/master/images/arch.png)
+![Diagram Architecture](https://raw.githubusercontent.com/elggem/ros_peoplemodel/master/images/arch.png)
 
 In addition this repository contains some config files and experimental scripts for use of this package on Hanson Robotics humanoid robots.
 
