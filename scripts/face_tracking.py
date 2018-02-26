@@ -43,7 +43,7 @@ class Tracking:
         self.center = [640, 360]
 
         rospy.Subscriber("/faces", Faces, self.facesPerceived)
-        rospy.Timer(rospy.Duration(1.0/30.0), self.updateHeadPosition)
+        rospy.Timer(rospy.Duration(1.0/10.0), self.updateHeadPosition)
 
 
 
@@ -82,24 +82,24 @@ class Tracking:
 
         print("Y: %.2f, Z: %.2f" % (distanceY, distanceZ))
 
-        self.currentTargetGaze.y = distanceY * 0.8
-        self.currentTargetGaze.z = distanceZ * 0.8
-        self.currentTargetGaze.speed = 0.3
+        self.currentTargetGaze.y += distanceY * 0.05
+        self.currentTargetGaze.z += distanceZ * 0.05
+        self.currentTargetGaze.speed = 1.0
 
-        self.currentTargetHead.y = distanceY * 0.2
-        self.currentTargetHead.z = distanceZ * 0.2
-        self.currentTargetHead.speed = 0.6
+        self.currentTargetHead.y += distanceY * 0.02
+        self.currentTargetHead.z += distanceZ * 0.02
+        self.currentTargetHead.speed = 0.5
 
-        self.gaze_focus_pub.publish(self.currentTargetGaze)
+        #self.gaze_focus_pub.publish(self.currentTargetGaze)
         self.head_focus_pub.publish(self.currentTargetHead)
 
-        #if len(self.biggestFace.emotions)>1:
-        #    happy = self.biggestFace.emotions[3]
-        #    msg = pau()
-        #    msg.m_coeffs = [happy, happy]
-        #    msg.m_shapekeys = ['lips-smile.L', 'lips-smile.R']
-        #    self.setpau_pub.publish(msg)
-        #    print("happy: %.2f" % (happy))
+        if len(self.biggestFace.emotions)>1:
+            happy = self.biggestFace.emotions[3]
+            msg = pau()
+            msg.m_coeffs = [happy, happy]
+            msg.m_shapekeys = ['lips-smile.L', 'lips-smile.R']
+            self.setpau_pub.publish(msg)
+            print("happy: %.2f" % (happy))
 
 
 
