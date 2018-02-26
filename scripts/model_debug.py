@@ -36,7 +36,7 @@ def debugDraw(self):
     cnn_clr = (0, 0, 255)
     frt_clr = (0, 0, 0)
     txt_clr = (255, 255, 255)
-    shp_clr = (255, 255, 255)
+    shp_clr = (100, 100, 100)
     emo_clr = (150, 150, 125)
 
     frame = IMAGE.copy()
@@ -54,6 +54,9 @@ def debugDraw(self):
 
         cut_frame = frame[py:py+size, px:px+size, :]
         #frame[py:py+size, px:px+size, :]  = img[:cut_frame.shape[0],:cut_frame.shape[1],:]
+
+        cv2.circle(frame, (int(face.position.x), int(face.position.y)), 10, cnn_clr)
+        cv2.putText(frame, "%.2f" % (face.certainty), (px + 10, py - 25), cv2.FONT_HERSHEY_PLAIN, 0.9,txt_clr)
 
         for p in face.shapes:
             cv2.circle(frame, (int(px+(p.x*1.1)), int(py+(p.y*1.1))), 1, shp_clr)
@@ -74,6 +77,10 @@ def debugDraw(self):
         for p, eye in enumerate(face.eyes_closed):
             cv2.rectangle(frame, (px + (p*20),      py + (int(eye*80))),
                                  (px + (p*20) + 20, py), shp_clr, -1)
+
+        if face.face_id is not None:
+            cv2.putText(frame, face.face_id[:15], (px + 10, py - 5), cv2.FONT_HERSHEY_PLAIN, 0.9,txt_clr)
+
 
 
 

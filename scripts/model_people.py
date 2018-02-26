@@ -12,23 +12,26 @@ from ros_peoplemodel.msg import Face
 from ros_peoplemodel.msg import Faces
 from geometry_msgs.msg import Point
 
+# Todo:
+# relative scaling factor from image size...
+
 FACES = []
 
 def updateModelDecay(self):
-    global ACTIVE_PEOPLE
+    global FACES
     to_remove = []
-    for identifier, stored in ACTIVE_PEOPLE.iteritems():
-        stored['active'] -= 0.01
-        if stored['active'] < 0.0:
-            to_remove.append(identifier)
+    for i, face in enumerate(FACES):
+        face.certainty *= 0.8
+        if face.certainty < 0.001:
+            to_remove.append(i)
     for rem in to_remove:
-        del ACTIVE_PEOPLE[rem]
+        del FACES[rem]
 
 
 def positionIsClose(p1,p2,close=0.5):
     return np.linalg.norm([p1.x-p2.x, p1.y-p2.y, p1.z-p2.z]) < close
 
-def blendPositions(p1, p2, bld_pos=0.65, bld_z=0.95):
+def blendPositions(p1, p2, bld_pos=0.45, bld_z=0.95):
     pt = Point()
     pt.x = (p1.x * (1.0-bld_pos)) + (p2.x * bld_pos)
     pt.y = (p1.y * (1.0-bld_pos)) + (p2.y * bld_pos)
@@ -47,24 +50,34 @@ def updateModelFromFeature(feature):
     global FACES
     for face in FACES:
         featurePosition = positionOfFeature(feature)
-        if positionIsClose(featurePosition, face.position, 200.0):
-            print "old face"
+        if positionIsClose(featurePosition, face.position, 200.0) or face.face_id == feature.face_id:
             face.position = blendPositions(featurePosition, face.position)
             face.crop = feature.crop
             face.shapes = feature.shapes
             face.emotions = feature.emotions
             face.eyes_closed = feature.eyes_closed
+            face.face_id = feature.face_id
+            face.certainty = 1.0
             return
 
-    print "new face"
     face = Face()
     face.crop = feature.crop
     face.position = positionOfFeature(feature)
-    face.shapes = feature.shapes
-    face.emotions = feature.emotions
-    face.eyes_closed = feature.eyes_closed
+    face.certainty = 1.0
+
     FACES.append(face)
 
+def updateModelFromCNNFeature(feature):
+    # Do not use CNN features for position update or anything, just certainty increase.
+    for face in FACES:
+        featurePosition = positionOfFeature(feature)
+        if positionIsClose(featurePosition, face.position, 200.0) or face.face_id == feature.face_id:
+            face.certainty = 1.0
+            return
+
+def cnnFeaturesPerceived(features):
+    for feature in features.features:
+        updateModelFromCNNFeature(feature)
 
 def featuresPerceived(features):
     for feature in features.features:
@@ -83,10 +96,10 @@ if __name__ == "__main__":
 
     pub = rospy.Publisher('faces', Faces, queue_size=10)
 
-    #rospy.Subscriber("/people/vis_dlib_cnn", Features, featuresPerceived)
+    rospy.Subscriber("/people/vis_dlib_cnn", Features, cnnFeaturesPerceived)
     rospy.Subscriber("/vis_dlib_frontal", Features, featuresPerceived)
 
-    #rospy.Timer(rospy.Duration(1.0/16.0), updateModelDecay)
+    rospy.Timer(rospy.Duration(1.0/30.0), updateModelDecay)
     rospy.Timer(rospy.Duration(1.0/30.0), publishFaces)
 
     rospy.spin()

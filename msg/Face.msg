@@ -12,6 +12,6 @@ float32                   certainty
 
 # Attributes
 geometry_msgs/Point[]     shapes
-string                    face_ids
+string                    face_id
 float32[]                 emotions
 float32[]                 eyes_closed
