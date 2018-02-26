@@ -73,7 +73,17 @@ def updateModelFromCNNFeature(feature):
         featurePosition = positionOfFeature(feature)
         if positionIsClose(featurePosition, face.position, 200.0) or face.face_id == feature.face_id:
             face.certainty = 1.0
+            if face.shapes == []:
+                featurePosition.z /= 2.0
+                face.position = blendPositions(featurePosition, face.position)
             return
+
+    face = Face()
+    face.crop = feature.crop
+    face.position = positionOfFeature(feature)
+    face.position.z /= 2.0
+    face.certainty = 1.0
+    FACES.append(face)
 
 def cnnFeaturesPerceived(features):
     for feature in features.features:
