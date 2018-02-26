@@ -40,10 +40,12 @@ class Tracking:
         self.currentTargetGaze = Target()
         self.currentTargetHead = Target()
         self.biggestFace = None
-        self.center = [640, 360]
+
+        self.refactory = 0
+        self.center = [710, 360]
 
         rospy.Subscriber("/faces", Faces, self.facesPerceived)
-        rospy.Timer(rospy.Duration(1.0/10.0), self.updateHeadPosition)
+        rospy.Timer(rospy.Duration(1.0/1.0), self.updateHeadPosition)
 
 
 
@@ -72,6 +74,11 @@ class Tracking:
         self.head_focus_pub.publish(msg)
 
     def updateHeadPosition(self, evt):
+        #if self.refactory >= 0:
+        #    self.refactory -= 1
+        #    print("refactrt: %.2f" % (self.refactory))
+        #    return
+
         if self.biggestFace is None:
             return
 
@@ -82,16 +89,18 @@ class Tracking:
 
         print("Y: %.2f, Z: %.2f" % (distanceY, distanceZ))
 
-        self.currentTargetGaze.y += distanceY * 0.05
-        self.currentTargetGaze.z += distanceZ * 0.05
+        #self.refactory = 5 * np.abs(distanceY + distanceZ)
+
+        #if self.refactory > 10.0:
+        self.currentTargetGaze.y += distanceY * 0.2
+        self.currentTargetGaze.z += distanceZ * 0.2
         self.currentTargetGaze.speed = 1.0
-
-        self.currentTargetHead.y += distanceY * 0.02
-        self.currentTargetHead.z += distanceZ * 0.02
-        self.currentTargetHead.speed = 0.5
-
-        #self.gaze_focus_pub.publish(self.currentTargetGaze)
-        self.head_focus_pub.publish(self.currentTargetHead)
+        self.gaze_focus_pub.publish(self.currentTargetGaze)
+        #else:
+        #self.currentTargetGaze.y += distanceY * 0.06
+        #self.currentTargetGaze.z += distanceZ * 0.06
+        self.currentTargetGaze.speed = 0.5
+        self.head_focus_pub.publish(self.currentTargetGaze)
 
         if len(self.biggestFace.emotions)>1:
             happy = self.biggestFace.emotions[3]
@@ -106,8 +115,12 @@ class Tracking:
 
 
     def facesPerceived(self,faces):
+
         if len(faces.faces) > 0:
             self.biggestFace = faces.faces[0]
+            for face in faces.faces:
+                if self.biggestFace.position.z < face.position.z:
+                    self.biggestFace = face
         else:
             self.biggestFace = None
 
