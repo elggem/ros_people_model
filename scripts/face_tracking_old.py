@@ -22,13 +22,12 @@ Simple demo script that takes the output of ros_peoplemodel to enable face_track
 
 Used also for Sonar 2017
 
-
 UNFINISHED
 """
 
 class Tracking:
     def __init__(self):
-        self.robot_name = "sophia10"
+        self.robot_name = "sophia14"
         self.head_focus_pub = rospy.Publisher('/blender_api/set_face_target', Target, queue_size=1)
         self.gaze_focus_pub = rospy.Publisher('/blender_api/set_gaze_target', Target, queue_size=1)
         self.setpau_pub = rospy.Publisher('/blender_api/set_pau', pau, queue_size=1)
@@ -42,10 +41,10 @@ class Tracking:
         self.biggestFace = None
 
         self.refactory = 0
-        self.center = [710, 360]
+        self.center = [480, 270]
 
         rospy.Subscriber("/faces", Faces, self.facesPerceived)
-        rospy.Timer(rospy.Duration(1.0/1.0), self.updateHeadPosition)
+        rospy.Timer(rospy.Duration(1.0/8.0), self.updateHeadPosition)
 
 
 
@@ -84,8 +83,8 @@ class Tracking:
 
         facePosition = self.biggestFace.position
 
-        distanceY = (self.center[0] - facePosition.x) / 1280.0
-        distanceZ = (self.center[1] - facePosition.y) / 720.0
+        distanceY = (self.center[0] - facePosition.x) / 960.0
+        distanceZ = (self.center[1] - facePosition.y) / 540.0
 
         print("Y: %.2f, Z: %.2f" % (distanceY, distanceZ))
 
@@ -99,16 +98,16 @@ class Tracking:
         #else:
         #self.currentTargetGaze.y += distanceY * 0.06
         #self.currentTargetGaze.z += distanceZ * 0.06
-        self.currentTargetGaze.speed = 0.5
-        self.head_focus_pub.publish(self.currentTargetGaze)
+        #self.currentTargetGaze.speed = 0.5
+        #self.head_focus_pub.publish(self.currentTargetGaze)
 
-        if len(self.biggestFace.emotions)>1:
-            happy = self.biggestFace.emotions[3]
-            msg = pau()
-            msg.m_coeffs = [happy, happy]
-            msg.m_shapekeys = ['lips-smile.L', 'lips-smile.R']
-            self.setpau_pub.publish(msg)
-            print("happy: %.2f" % (happy))
+        #if len(self.biggestFace.emotions)>1:
+        #    happy = self.biggestFace.emotions[3]
+        #    msg = pau()
+        #    msg.m_coeffs = [happy, happy]
+        #    msg.m_shapekeys = ['lips-smile.L', 'lips-smile.R']
+        #    self.setpau_pub.publish(msg)
+        #    print("happy: %.2f" % (happy))
 
 
 

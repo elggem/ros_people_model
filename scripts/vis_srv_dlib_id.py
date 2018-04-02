@@ -19,10 +19,10 @@ from geometry_msgs.msg import Point
 from ros_peoplemodel.srv import DlibFaceID
 from ros_peoplemodel.srv import DlibFaceIDResponse
 
-DLIB_RECOGNITION_MODEL_FILE = "/tmp/dlib/recognition_resnet.dat"
+DLIB_RECOGNITION_MODEL_FILE = "/home/han/.dlib/recognition_resnet.dat"
 DLIB_RECOGNITION_MODEL_URL = "http://dlib.net/files/dlib_face_recognition_resnet_model_v1.dat.bz2"
 
-FACE_ID_VECTOR_FILE = "/tmp/faces.pkl"
+FACE_ID_VECTOR_FILE = "/home/han/.dlib/faces.pkl"
 FACE_ID_VECTOR_DICT = None
 
 current_milli_time = lambda: int(round(time.time() * 1000))

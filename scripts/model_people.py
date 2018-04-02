@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
     pub = rospy.Publisher('faces', Faces, queue_size=10)
 
-    rospy.Subscriber("/people/vis_dlib_cnn", Features, cnnFeaturesPerceived)
+    rospy.Subscriber("/vis_dlib_cnn", Features, cnnFeaturesPerceived)
     rospy.Subscriber("/vis_dlib_frontal", Features, featuresPerceived)
 
     rospy.Timer(rospy.Duration(1.0/30.0), updateModelDecay)

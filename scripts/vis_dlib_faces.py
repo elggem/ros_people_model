@@ -102,7 +102,7 @@ if __name__ == "__main__":
     # Publishers
     pub = rospy.Publisher('vis_dlib_frontal', Features, queue_size=10)
     # Subscribers
-    rospy.Subscriber(rospy.get_param('~topic_name', '/people/vis_dlib_cnn'), Features, featuresCallback)
+    rospy.Subscriber(rospy.get_param('~topic_name', '/vis_dlib_cnn'), Features, featuresCallback)
 
     # Dlib
     dlib_detector = dlib.get_frontal_face_detector()

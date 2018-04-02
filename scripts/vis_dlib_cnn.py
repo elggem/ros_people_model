@@ -16,7 +16,7 @@ from sensor_msgs.msg import Image
 
 IMAGE = None
 
-DLIB_CNN_MODEL_FILE = "/tmp/dlib/mmod_cnn.dat"
+DLIB_CNN_MODEL_FILE = "/home/han/.dlib/mmod_cnn.dat"
 DLIB_CNN_MODEL_URL = "http://dlib.net/files/mmod_human_face_detector.dat.bz2"
 
 def initializeModel():
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     CNN_PADDING = rospy.get_param('~padding', 0.1)
 
     # Publishers
-    pub = rospy.Publisher('/people/vis_dlib_cnn', Features, queue_size=10)
+    pub = rospy.Publisher('/vis_dlib_cnn', Features, queue_size=10)
     # Subscribers
     rospy.Subscriber(rospy.get_param('~topic_name', '/camera/image_raw'), Image, imageCallback)
 

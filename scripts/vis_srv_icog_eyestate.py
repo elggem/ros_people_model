@@ -32,13 +32,13 @@ import keras.backend.tensorflow_backend as K
 from keras.models import model_from_json
 
 
-EYESTATE_JSON_FILE = "/tmp/dlib/eyestate.json"
-EYESTATE_MODEL_FILE = "/tmp/dlib/eyestate.h5"
+EYESTATE_JSON_FILE = "/home/han/.dlib/eyestate.json"
+EYESTATE_MODEL_FILE = "/home/han/.dlib/eyestate.h5"
 
 EYESTATE_JSON_URL = "https://raw.githubusercontent.com/mitiku1/EyeStateDetection/master/models/model.json"
 EYESTATE_MODEL_URL = "https://raw.githubusercontent.com/mitiku1/EyeStateDetection/master/models/model.h5"
 
-DLIB_SHAPE_MODEL_FILE = "/tmp/dlib/shape_predictor.dat"
+DLIB_SHAPE_MODEL_FILE = "/home/han/.dlib/shape_predictor.dat"
 DLIB_SHAPE_MODEL_URL = "http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2"
 
 THRESH_HOLD = 0.5

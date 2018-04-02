@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
     # Subscribers
     rospy.Subscriber("/camera/image_raw", Image, imageCallback)
-    rospy.Subscriber("/people/vis_dlib_cnn", Features, cnnCallback)
+    rospy.Subscriber("/vis_dlib_cnn", Features, cnnCallback)
     rospy.Subscriber("/vis_dlib_frontal", Features, frontalCallback)
 
     # Launch drawing timer

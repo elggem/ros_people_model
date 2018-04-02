@@ -1,26 +1,15 @@
 <launch>
-  <node name="camera" pkg="usb_cam" type="usb_cam_node" output="log">
-    <param name="video_device" value="/dev/video0" />
-    <param name="pixel_format" value="mjpeg" />
-    <param name="image_width" value="1280" />
-    <param name="image_height" value="720" />
-    <param name="framerate" value="30" />
-    <param name="camera_info_url" value="file://$(find ros_peoplemodel)/config/sophia10left/ost.yaml" />
-  </node>
-
-
-
   <node name="vis_dlib_cnn" pkg="ros_peoplemodel" type="vis_dlib_cnn.py" output="screen">
-    <param name="topic_name" value="/camera/image_raw" />
+    <param name="topic_name" value="/eye_camera/image_raw" />
     <param name="scale" type="double" value="0.2" />
     <param name="fps" type="double" value="5.0" />
     <param name="padding" type="double" value="0.1" />
   </node>
 
   <node name="vis_dlib_faces" pkg="ros_peoplemodel" type="vis_dlib_faces.py" output="screen">
-    <param name="topic_name" value="/vis_dlib_cnn" />
+    <param name="topic_name" value="/people/vis_dlib_cnn" />
     <param name="scale" type="double" value="0.3" />
-    <param name="fps" type="double" value="20.0" />
+    <param name="fps" type="double" value="5.0" />
   </node>
 
   <node name="vis_srv_dlib_shapes" pkg="ros_peoplemodel" type="vis_srv_dlib_shapes.py" output="screen" />
@@ -30,6 +19,19 @@
 
   <node name="model_people" pkg="ros_peoplemodel" type="model_people.py" output="screen" />
 
-  <node name="vis_debug" pkg="ros_peoplemodel" type="vis_debug.py" output="screen" />
+  <!--<node name="vis_debug" pkg="ros_peoplemodel" type="vis_debug.py" output="screen" />-->
   <!--<node name="model_debug" pkg="ros_peoplemodel" type="model_debug.py" output="screen" />-->
+
+  <node name="eye_camera" pkg="usb_cam" type="usb_cam_node" output="log">
+    <param name="video_device" value="/dev/video0" />
+    <param name="pixel_format" value="mjpeg" />
+    <param name="image_width" value="1280" />
+    <param name="image_height" value="720" />
+    <param name="framerate" value="30" />
+    <param name="camera_info_url" value="file://$(find ros_peoplemodel)/config/sophia10left/ost.yaml" />
+  </node>
+
+  <node name="transcribe_streaming_indefinite" pkg="ros_googlespeech" type="transcribe_streaming_indefinite.py" output="screen" />
+
+
 </launch>

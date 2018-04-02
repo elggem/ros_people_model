@@ -15,7 +15,7 @@ from geometry_msgs.msg import Point
 from ros_peoplemodel.srv import DlibShapes
 from ros_peoplemodel.srv import DlibShapesResponse
 
-DLIB_SHAPE_MODEL_FILE = "/tmp/dlib/shape_predictor.dat"
+DLIB_SHAPE_MODEL_FILE = "/home/han/.dlib/shape_predictor.dat"
 DLIB_SHAPE_MODEL_URL = "http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2"
 
 

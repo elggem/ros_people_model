@@ -32,12 +32,12 @@ import keras.backend.tensorflow_backend as K
 from keras.models import model_from_json
 
 
-EMOPY_AVA_JSON_FILE = "/tmp/dlib/ava.json"
-EMOPY_AVA_MODEL_FILE = "/tmp/dlib/ava.h5"
+EMOPY_AVA_JSON_FILE = "/home/han/.dlib/ava.json"
+EMOPY_AVA_MODEL_FILE = "/home/han/.dlib/ava.h5"
 
 EMOPY_AVA_JSON_URL = "https://raw.githubusercontent.com/mitiku1/Emopy-Models/master/models/ava.json"
 EMOPY_AVA_MODEL_URL = "https://raw.githubusercontent.com/mitiku1/Emopy-Models/master/models/ava.h5"
-DLIB_SHAPE_MODEL_FILE = "/tmp/dlib/shape_predictor.dat"
+DLIB_SHAPE_MODEL_FILE = "/home/han/.dlib/shape_predictor.dat"
 DLIB_SHAPE_MODEL_URL = "http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2"
 
 EMOTION_STATES = {
