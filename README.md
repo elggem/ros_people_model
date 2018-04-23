@@ -68,14 +68,12 @@ In `launch/` there are several scripts to test the architecture:
   - In addition `scripts/vis_debug.py` will show a window for debugging output of the raw visual perception scripts.
   - In addition `scripts/model_debug.py` will show a window for debugging the output of model_people node, which fuses the various visual classifiers into a model of perceived faces.
 
+## Roadmap
 
-
-  ## Roadmap
-
-    - Integration with a classifier for speaking detection
-    - Eventual integration with directional microphone to map what is spoken to individual faces.
-    - Integration with OpenPose and various classifiers for
-      - Body pose estimation (sitting, standing, waving, etc.)
-      - Hand pose estimation (open palm, fist, etc.)
-    - Integration wih Masked RCNN architectures to detect various categories of objects in the hands of people.
-    - Better packaging and setup.py
+  - Integration with a classifier for speaking detection
+  - Eventual integration with directional microphone to map what is spoken to individual faces.
+  - Integration with OpenPose and various classifiers for
+    - Body pose estimation (sitting, standing, waving, etc.)
+    - Hand pose estimation (open palm, fist, etc.)
+  - Integration wih Masked RCNN architectures to detect various categories of objects in the hands of people.
+  - Better packaging and setup.py
