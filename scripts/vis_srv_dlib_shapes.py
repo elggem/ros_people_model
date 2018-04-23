@@ -15,14 +15,14 @@ from geometry_msgs.msg import Point
 from ros_peoplemodel.srv import DlibShapes
 from ros_peoplemodel.srv import DlibShapesResponse
 
-DLIB_SHAPE_MODEL_FILE = "/home/han/.dlib/shape_predictor.dat"
+DLIB_SHAPE_MODEL_FILE = expanduser("~/.dlib/shape_predictor.dat")
 DLIB_SHAPE_MODEL_URL = "http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2"
 
 
 def initializeModel():
     urlOpener = urllib.URLopener()
-    if not os.path.exists("/tmp/dlib"):
-        os.makedirs("/tmp/dlib")
+    if not os.path.exists(expanduser("~/.dlib")):
+        os.makedirs(expanduser("~/.dlib"))
 
     if not os.path.isfile(DLIB_SHAPE_MODEL_FILE):
         print("downloading %s" % DLIB_SHAPE_MODEL_URL)

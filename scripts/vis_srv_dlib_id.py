@@ -11,6 +11,7 @@ import bz2
 import time
 import uuid
 import pickle
+from os.path import expanduser
 
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
@@ -19,18 +20,19 @@ from geometry_msgs.msg import Point
 from ros_peoplemodel.srv import DlibFaceID
 from ros_peoplemodel.srv import DlibFaceIDResponse
 
-DLIB_RECOGNITION_MODEL_FILE = "/home/han/.dlib/recognition_resnet.dat"
+
+DLIB_RECOGNITION_MODEL_FILE = expanduser("~/.dlib/recognition_resnet.dat")
 DLIB_RECOGNITION_MODEL_URL = "http://dlib.net/files/dlib_face_recognition_resnet_model_v1.dat.bz2"
 
-FACE_ID_VECTOR_FILE = "/home/han/.dlib/faces.pkl"
+FACE_ID_VECTOR_FILE = expanduser("~/.dlib/faces.pkl")
 FACE_ID_VECTOR_DICT = None
 
 current_milli_time = lambda: int(round(time.time() * 1000))
 
 def initializeModel():
     urlOpener = urllib.URLopener()
-    if not os.path.exists("/tmp/dlib"):
-        os.makedirs("/tmp/dlib")
+    if not os.path.exists(expanduser("~/.dlib")):
+        os.makedirs(expanduser("~/.dlib"))
 
     if not os.path.isfile(DLIB_RECOGNITION_MODEL_FILE):
         print("downloading %s" % DLIB_RECOGNITION_MODEL_URL)

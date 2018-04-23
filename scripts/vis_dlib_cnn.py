@@ -8,6 +8,7 @@ import urllib
 import os
 import bz2
 from cv_bridge import CvBridge, CvBridgeError
+from os.path import expanduser
 
 from ros_peoplemodel.msg import Feature
 from ros_peoplemodel.msg import Features
@@ -16,13 +17,13 @@ from sensor_msgs.msg import Image
 
 IMAGE = None
 
-DLIB_CNN_MODEL_FILE = "/home/han/.dlib/mmod_cnn.dat"
+DLIB_CNN_MODEL_FILE = expanduser("~/.dlib/mmod_cnn.dat")
 DLIB_CNN_MODEL_URL = "http://dlib.net/files/mmod_human_face_detector.dat.bz2"
 
 def initializeModel():
     urlOpener = urllib.URLopener()
-    if not os.path.exists("/tmp/dlib"):
-        os.makedirs("/tmp/dlib")
+    if not os.path.exists(expanduser("~/.dlib")):
+        os.makedirs(expanduser("~/.dlib"))
 
     if not os.path.isfile(DLIB_CNN_MODEL_FILE):
         print("downloading %s" % DLIB_CNN_MODEL_URL)

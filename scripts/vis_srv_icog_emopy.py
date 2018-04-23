@@ -31,14 +31,13 @@ session = tf.Session(config=config)
 import keras.backend.tensorflow_backend as K
 from keras.models import model_from_json
 
+DLIB_SHAPE_MODEL_FILE = expanduser("~/.dlib/shape_predictor.dat")
+EMOPY_AVA_JSON_FILE = expanduser("~/.dlib/ava.json")
+EMOPY_AVA_MODEL_FILE = expanduser("~/.dlib/ava.h5")
 
-EMOPY_AVA_JSON_FILE = "/home/han/.dlib/ava.json"
-EMOPY_AVA_MODEL_FILE = "/home/han/.dlib/ava.h5"
-
+DLIB_SHAPE_MODEL_URL = "http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2"
 EMOPY_AVA_JSON_URL = "https://raw.githubusercontent.com/mitiku1/Emopy-Models/master/models/ava.json"
 EMOPY_AVA_MODEL_URL = "https://raw.githubusercontent.com/mitiku1/Emopy-Models/master/models/ava.h5"
-DLIB_SHAPE_MODEL_FILE = "/home/han/.dlib/shape_predictor.dat"
-DLIB_SHAPE_MODEL_URL = "http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2"
 
 EMOTION_STATES = {
     0 : "neutral" ,
@@ -61,8 +60,8 @@ IMG_SIZE = (48,48)
 
 def initializeModels():
     urlOpener = urllib.URLopener()
-    if not os.path.exists("/tmp/dlib"):
-        os.makedirs("/tmp/dlib")
+    if not os.path.exists(expanduser("~/.dlib")):
+        os.makedirs(expanduser("~/.dlib"))
 
     if not os.path.isfile(DLIB_SHAPE_MODEL_FILE):
         print("downloading %s" % DLIB_SHAPE_MODEL_URL)
