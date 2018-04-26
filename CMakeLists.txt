@@ -137,10 +137,21 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(PROGRAMS
+   scripts/face_tracking_old.py
+   scripts/mirroring.py
+   scripts/model_debug.py
+   scripts/model_people.py
+   scripts/model_world.py
+   scripts/vis_debug.py
+   scripts/vis_dlib_cnn.py
+   scripts/vis_dlib_faces.py
+   scripts/vis_srv_dlib_id.py
+   scripts/vis_srv_dlib_shapes.py
+   scripts/vis_srv_icog_emopy.py
+   scripts/vis_srv_icog_eyestate.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark executables and/or libraries for installation
 # install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
