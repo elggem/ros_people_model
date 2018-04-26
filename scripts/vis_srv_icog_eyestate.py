@@ -12,6 +12,8 @@ import uuid
 import bz2
 import cv2
 import time
+from os.path import expanduser
+
 
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
