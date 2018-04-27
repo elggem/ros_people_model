@@ -2,7 +2,14 @@ cmake_minimum_required(VERSION 2.8.3)
 project(ros_peoplemodel)
 
 ## Find catkin macros and libraries
-find_package(catkin REQUIRED COMPONENTS std_msgs sensor_msgs geometry_msgs message_generation)
+find_package(catkin REQUIRED COMPONENTS
+    std_msgs
+    sensor_msgs
+    geometry_msgs
+    message_generation
+    hr_msgs
+    blender_api_msgs
+)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
