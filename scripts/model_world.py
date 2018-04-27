@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 """
 http://docs.ros.org/api/image_geometry/html/python/
 
@@ -9,7 +11,6 @@ Can optinally receive /pose topic from orb2slam or pauposeestimator
 """
 
 import image_geometry
-# !/usr/bin/python
 import rospy
 import tf
 from geometry_msgs.msg import Pose
