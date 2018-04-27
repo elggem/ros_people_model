@@ -7,24 +7,22 @@ EMOTIONS = ['anger', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
 EXPRESSIONS = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprised', 'none']
 WEIGHTS = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.0]
 THRESHOLD = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
-
 STATES = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-
 DECAY = 0.08
 
 
 class Tracking:
     def __init__(self):
         self.expressions_pub = rospy.Publisher('/blender_api/set_emotion_value', EmotionState, queue_size=1)
-        self.biggestFace = None
+        self.biggest_face = None
 
-        rospy.Subscriber("/faces", Faces, self.facesPerceived)
-        rospy.Timer(rospy.Duration(1.0 / 25.0), self.updateHeadPosition)
+        rospy.Subscriber("/faces", Faces, self.faces_perceived)
+        rospy.Timer(rospy.Duration(1.0 / 25.0), self.update_head_position)
 
-    def getEmotionValue(self, emotype):
-        return self.biggestFace.emotions[EMOTIONS.index(emotype)]
+    def get_emotion_value(self, emotype):
+        return self.biggest_face.emotions[EMOTIONS.index(emotype)]
 
-    def updateHeadPosition(self, evt):
+    def update_head_position(self, evt):
         print
         ' '.join(['%s: %.3f' % (EMOTIONS[n], STATES[n]) for n in xrange(len(EMOTIONS))])
 
@@ -35,18 +33,18 @@ class Tracking:
             if expression.magnitude > 0.005:
                 self.expressions_pub.publish(expression)
 
-    def facesPerceived(self, faces):
+    def faces_perceived(self, faces):
         if len(faces.faces) > 0:
-            self.biggestFace = faces.faces[0]
+            self.biggest_face = faces.faces[0]
             for face in faces.faces:
-                if self.biggestFace.position.z < face.position.z:
-                    self.biggestFace = face
+                if self.biggest_face.position.z < face.position.z:
+                    self.biggest_face = face
 
-            if len(self.biggestFace.emotions) > 1:
+            if len(self.biggest_face.emotions) > 1:
                 try:
                     for i, emo in enumerate(EMOTIONS):
-                        if self.getEmotionValue(emo) > THRESHOLD[i]:
-                            STATES[i] = (STATES[i] * (1.0 - WEIGHTS[i])) + (WEIGHTS[i] * self.getEmotionValue(emo))
+                        if self.get_emotion_value(emo) > THRESHOLD[i]:
+                            STATES[i] = (STATES[i] * (1.0 - WEIGHTS[i])) + (WEIGHTS[i] * self.get_emotion_value(emo))
                         else:
                             STATES[i] = STATES[i] * (1.0 - DECAY)
                 except:
@@ -55,7 +53,7 @@ class Tracking:
                 for i, emo in enumerate(EMOTIONS):
                     STATES[i] = STATES[i] * (1.0 - DECAY)
         else:
-            self.biggestFace = None
+            self.biggest_face = None
             for i, emo in enumerate(EMOTIONS):
                 STATES[i] = STATES[i] * (1.0 - DECAY)
 

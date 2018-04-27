@@ -22,7 +22,7 @@ EMOTIONS = {
 }
 
 
-def debugDraw(self):
+def debug_draw(self):
     global IMAGE, FACES
 
     if IMAGE is None or FACES is None:
@@ -87,12 +87,12 @@ def debugDraw(self):
         return
 
 
-def imageCallback(data):
+def image_callback(data):
     global IMAGE
     IMAGE = bridge.imgmsg_to_cv2(data, "bgr8")
 
 
-def facesCallback(data):
+def faces_callback(data):
     global FACES
     FACES = data.faces
 
@@ -102,10 +102,10 @@ if __name__ == "__main__":
     bridge = CvBridge()
 
     # Subscribers
-    rospy.Subscriber("/camera/image_raw", Image, imageCallback)
-    rospy.Subscriber("/faces", Faces, facesCallback)
+    rospy.Subscriber("/camera/image_raw", Image, image_callback)
+    rospy.Subscriber("/faces", Faces, faces_callback)
 
     # Launch drawing timer
-    rospy.Timer(rospy.Duration(DRAW_FRAMERATE), debugDraw)
+    rospy.Timer(rospy.Duration(DRAW_FRAMERATE), debug_draw)
 
     rospy.spin()

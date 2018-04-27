@@ -36,27 +36,26 @@ def qv_mult(q1, v1):
     )[:3]
 
 
-def projectPixelAndPoseTo3dRay(uv):
+def project_pixel_and_pose_to_3d_ray(uv):
     global POSE_QUATERNION
     return qv_mult(POSE_QUATERNION, CAMERA_MODEL.projectPixelTo3dRay(uv))
 
 
-def poseCallback(pose):
+def pose_callback(pose):
     global POSE_QUATERNION
     POSE_QUATERNION = [pose.orientation.w, pose.orientation.x, pose.orientation.y, pose.orientation.z]
 
 
-def cameraInfoCallback(msg):
+def camera_info_callback(msg):
     global CAMERA_MODEL
     CAMERA_MODEL.fromCameraInfo(msg)
 
 
-def featuresCallback(features):
+def features_callback(features):
     for roi in features.rois:
         uv = (roi.x_offset + (roi.width / 2), roi.y_offset + (roi.height / 2))
-        ray = projectPixelAndPoseTo3dRay(uv)
-        print
-        ray
+        ray = project_pixel_and_pose_to_3d_ray(uv)
+        print(ray)
     pass
 
 
@@ -66,10 +65,10 @@ if __name__ == "__main__":
     # Publishers
     # pub = rospy.Publisher('/pose', Pose, queue_size=10)
     # Subscribers
-    rospy.Subscriber("/pose", Pose, poseCallback)
-    rospy.Subscriber("/camera/camera_info", CameraInfo, cameraInfoCallback)
+    rospy.Subscriber("/pose", Pose, pose_callback)
+    rospy.Subscriber("/camera/camera_info", CameraInfo, camera_info_callback)
 
     # TODO: replace with people model
-    rospy.Subscriber("/people/vis_dlib_cnn", Features, featuresCallback)
+    rospy.Subscriber("/people/vis_dlib_cnn", Features, features_callback)
 
     rospy.spin()

@@ -26,24 +26,24 @@ class Tracking:
 
         # 640 360
 
-        self.currentTargetGaze = Target()
-        self.currentTargetHead = Target()
-        self.biggestFace = None
+        self.current_target_gaze = Target()
+        self.current_target_head = Target()
+        self.biggest_face = None
 
         self.refactory = 0
         self.center = [480, 270]
 
-        rospy.Subscriber("/faces", Faces, self.facesPerceived)
-        rospy.Timer(rospy.Duration(1.0 / 8.0), self.updateHeadPosition)
+        rospy.Subscriber("/faces", Faces, self.faces_perceived)
+        rospy.Timer(rospy.Duration(1.0 / 8.0), self.update_head_position)
 
-    def Say(self, text):
+    def say(self, text):
         # publish TTS message
         msg = TTS()
         msg.text = text
         msg.lang = 'en-US'
         self.tts_pub.publish(msg)
 
-    def SetGazeFocus(self, pos, speed):
+    def set_gaze_focus(self, pos, speed):
         msg = Target()
         msg.x = pos.x
         msg.y = pos.y
@@ -51,7 +51,7 @@ class Tracking:
         msg.speed = speed
         self.gaze_focus_pub.publish(msg)
 
-    def SetHeadFocus(self, pos, speed):
+    def set_head_focus(self, pos, speed):
         msg = Target()
         msg.x = pos.x
         msg.y = pos.y
@@ -59,29 +59,29 @@ class Tracking:
         msg.speed = speed
         self.head_focus_pub.publish(msg)
 
-    def updateHeadPosition(self, evt):
+    def update_head_position(self, evt):
         # if self.refactory >= 0:
         #    self.refactory -= 1
         #    print("refactrt: %.2f" % (self.refactory))
         #    return
 
-        if self.biggestFace is None:
+        if self.biggest_face is None:
             return
 
-        facePosition = self.biggestFace.position
+        face_position = self.biggest_face.position
 
-        distanceY = (self.center[0] - facePosition.x) / 960.0
-        distanceZ = (self.center[1] - facePosition.y) / 540.0
+        distance_y = (self.center[0] - face_position.x) / 960.0
+        distance_z = (self.center[1] - face_position.y) / 540.0
 
-        print("Y: %.2f, Z: %.2f" % (distanceY, distanceZ))
+        print("Y: %.2f, Z: %.2f" % (distance_y, distance_z))
 
         # self.refactory = 5 * np.abs(distanceY + distanceZ)
 
         # if self.refactory > 10.0:
-        self.currentTargetGaze.y += distanceY * 0.2
-        self.currentTargetGaze.z += distanceZ * 0.2
-        self.currentTargetGaze.speed = 1.0
-        self.gaze_focus_pub.publish(self.currentTargetGaze)
+        self.current_target_gaze.y += distance_y * 0.2
+        self.current_target_gaze.z += distance_z * 0.2
+        self.current_target_gaze.speed = 1.0
+        self.gaze_focus_pub.publish(self.current_target_gaze)
         # else:
         # self.currentTargetGaze.y += distanceY * 0.06
         # self.currentTargetGaze.z += distanceZ * 0.06
@@ -96,15 +96,15 @@ class Tracking:
         #    self.setpau_pub.publish(msg)
         #    print("happy: %.2f" % (happy))
 
-    def facesPerceived(self, faces):
+    def faces_perceived(self, faces):
 
         if len(faces.faces) > 0:
-            self.biggestFace = faces.faces[0]
+            self.biggest_face = faces.faces[0]
             for face in faces.faces:
-                if self.biggestFace.position.z < face.position.z:
-                    self.biggestFace = face
+                if self.biggest_face.position.z < face.position.z:
+                    self.biggest_face = face
         else:
-            self.biggestFace = None
+            self.biggest_face = None
 
 
 if __name__ == "__main__":

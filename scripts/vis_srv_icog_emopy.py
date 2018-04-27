@@ -51,24 +51,24 @@ THRESH_HOLD = 0.5
 IMG_SIZE = (48, 48)
 
 
-def initializeModels():
-    urlOpener = urllib.URLopener()
+def initialize_models():
+    url_opener = urllib.URLopener()
     if not os.path.exists(expanduser("~/.dlib")):
         os.makedirs(expanduser("~/.dlib"))
 
     if not os.path.isfile(DLIB_SHAPE_MODEL_FILE):
         print("downloading %s" % DLIB_SHAPE_MODEL_URL)
-        urlOpener.retrieve(DLIB_SHAPE_MODEL_URL, DLIB_SHAPE_MODEL_FILE)
+        url_opener.retrieve(DLIB_SHAPE_MODEL_URL, DLIB_SHAPE_MODEL_FILE)
         data = bz2.BZ2File(DLIB_SHAPE_MODEL_FILE).read()  # get the decompressed data
         open(DLIB_SHAPE_MODEL_FILE, 'wb').write(data)  # write a uncompressed file
 
     if not os.path.isfile(EMOPY_AVA_JSON_FILE):
         print("downloading %s" % EMOPY_AVA_JSON_URL)
-        urlOpener.retrieve(EMOPY_AVA_JSON_URL, EMOPY_AVA_JSON_FILE)
+        url_opener.retrieve(EMOPY_AVA_JSON_URL, EMOPY_AVA_JSON_FILE)
 
     if not os.path.isfile(EMOPY_AVA_MODEL_FILE):
         print("downloading %s" % EMOPY_AVA_MODEL_URL)
-        urlOpener.retrieve(EMOPY_AVA_MODEL_URL, EMOPY_AVA_MODEL_FILE)
+        url_opener.retrieve(EMOPY_AVA_MODEL_URL, EMOPY_AVA_MODEL_FILE)
 
 
 def sanitize(image):
@@ -264,7 +264,7 @@ def recognize_emotion(model, predictor, face, model_type="ava"):
     return predictions
 
 
-def handleRequest(req):
+def handle_request(req):
     image = bridge.imgmsg_to_cv2(req.image, "8UC3")
     with graph.as_default():
         emotions = recognize_emotion(emopy_model, dlib_shape_predictor, image)
@@ -272,7 +272,7 @@ def handleRequest(req):
 
 
 if __name__ == "__main__":
-    initializeModels()
+    initialize_models()
     bridge = CvBridge()
 
     dlib_shape_predictor = dlib.shape_predictor(DLIB_SHAPE_MODEL_FILE)
@@ -285,6 +285,6 @@ if __name__ == "__main__":
     graph = tf.get_default_graph()
 
     rospy.init_node('vis_srv_icog_emopy_server', anonymous=True)
-    srv = rospy.Service('vis_srv_icog_emopy', iCogEmopy, handleRequest)
+    srv = rospy.Service('vis_srv_icog_emopy', iCogEmopy, handle_request)
 
     rospy.spin()

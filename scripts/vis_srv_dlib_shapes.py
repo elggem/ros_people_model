@@ -15,19 +15,19 @@ DLIB_SHAPE_MODEL_FILE = expanduser("~/.dlib/shape_predictor.dat")
 DLIB_SHAPE_MODEL_URL = "http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2"
 
 
-def initializeModel():
-    urlOpener = urllib.URLopener()
+def initialize_model():
+    url_opener = urllib.URLopener()
     if not os.path.exists(expanduser("~/.dlib")):
         os.makedirs(expanduser("~/.dlib"))
 
     if not os.path.isfile(DLIB_SHAPE_MODEL_FILE):
         print("downloading %s" % DLIB_SHAPE_MODEL_URL)
-        urlOpener.retrieve(DLIB_SHAPE_MODEL_URL, DLIB_SHAPE_MODEL_FILE)
+        url_opener.retrieve(DLIB_SHAPE_MODEL_URL, DLIB_SHAPE_MODEL_FILE)
         data = bz2.BZ2File(DLIB_SHAPE_MODEL_FILE).read()  # get the decompressed data
         open(DLIB_SHAPE_MODEL_FILE, 'wb').write(data)  # write a uncompressed file
 
 
-def handleRequest(req):
+def handle_request(req):
     image = bridge.imgmsg_to_cv2(req.image, "8UC3")
     d = dlib.rectangle(0, 0, image.shape[0], image.shape[1])
 
@@ -38,11 +38,11 @@ def handleRequest(req):
 
 
 if __name__ == "__main__":
-    initializeModel()
+    initialize_model()
     bridge = CvBridge()
     dlib_shape_predictor = dlib.shape_predictor(DLIB_SHAPE_MODEL_FILE)
 
     rospy.init_node('vis_srv_dlib_shapes_server')
-    srv = rospy.Service('vis_srv_dlib_shapes', DlibShapes, handleRequest)
+    srv = rospy.Service('vis_srv_dlib_shapes', DlibShapes, handle_request)
 
     rospy.spin()

@@ -23,7 +23,7 @@ FACE_ID_VECTOR_DICT = None
 current_milli_time = lambda: int(round(time.time() * 1000))
 
 
-def initializeModel():
+def initialize_model():
     urlOpener = urllib.URLopener()
     if not os.path.exists(expanduser("~/.dlib")):
         os.makedirs(expanduser("~/.dlib"))
@@ -35,7 +35,7 @@ def initializeModel():
         open(DLIB_RECOGNITION_MODEL_FILE, 'wb').write(data)  # write a uncompressed file
 
 
-def initializeFaceID():
+def initialize_face_id():
     # Determines if there is pickled face recognition array on disk and restores it.
     # Otherwise initializes empty array.
     global FACE_ID_VECTOR_DICT
@@ -48,17 +48,17 @@ def initializeFaceID():
             FACE_ID_VECTOR_DICT = {}
 
 
-def persistFaceID():
+def persist_face_id():
     print("Persisting Face ID data")
     pickle.dump(FACE_ID_VECTOR_DICT, open(FACE_ID_VECTOR_FILE, "wb"), protocol=pickle.HIGHEST_PROTOCOL)
 
 
-def addFaceVectorToID(identifier, face_vec):
+def add_face_vector_to_id(identifier, face_vec):
     old_vectors = FACE_ID_VECTOR_DICT[identifier]['vector']
     FACE_ID_VECTOR_DICT[identifier]['vector'] = old_vectors + [face_vec]
 
 
-def getFaceID(face_vec, position, timestamp, threshold=0.6):
+def get_face_id(face_vec, position, timestamp, threshold=0.6):
     face_vec = np.array([i for i in face_vec])
 
     # for identifier, stored in FACE_ID_VECTOR_DICT.iteritems():
@@ -80,16 +80,16 @@ def getFaceID(face_vec, position, timestamp, threshold=0.6):
         print("time %.4f" % (timedistance))
         if spatialdistance < 100.0 and timedistance < 200:
             print("adding new vector to face")
-            addFaceVectorToID(identifier, face_vec)
-            persistFaceID()
+            add_face_vector_to_id(identifier, face_vec)
+            persist_face_id()
             return identifier
 
     FACE_ID_VECTOR_DICT[uuid.uuid4().hex] = {'vector': [face_vec], 'position': np.array(position),
                                              'timestamp': timestamp}
-    persistFaceID()
+    persist_face_id()
 
 
-def handleRequest(req):
+def handle_request(req):
     image = bridge.imgmsg_to_cv2(req.image, "8UC3")
     d = dlib.rectangle(0, 0, image.shape[0], image.shape[1])
 
@@ -99,8 +99,8 @@ def handleRequest(req):
 
     # Get the face descriptor
     face_descriptor = dlib_face_recognizer.compute_face_descriptor(image, dlib_shape)
-    face_id = getFaceID(face_descriptor, [req.roi.x_offset, req.roi.y_offset, req.roi.height, req.roi.width],
-                        current_milli_time())
+    face_id = get_face_id(face_descriptor, [req.roi.x_offset, req.roi.y_offset, req.roi.height, req.roi.width],
+                          current_milli_time())
 
     if face_id is None:
         face_id = ""
@@ -109,12 +109,12 @@ def handleRequest(req):
 
 
 if __name__ == "__main__":
-    initializeModel()
-    initializeFaceID()
+    initialize_model()
+    initialize_face_id()
     bridge = CvBridge()
     dlib_face_recognizer = dlib.face_recognition_model_v1(DLIB_RECOGNITION_MODEL_FILE)
 
     rospy.init_node('vis_srv_dlib_id_server', anonymous=True)
-    srv = rospy.Service('vis_srv_dlib_id', DlibFaceID, handleRequest)
+    srv = rospy.Service('vis_srv_dlib_id', DlibFaceID, handle_request)
 
     rospy.spin()

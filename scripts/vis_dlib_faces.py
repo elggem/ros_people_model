@@ -15,7 +15,7 @@ from sensor_msgs.msg import RegionOfInterest
 FACE_CANDIDATES_CNN = None
 
 
-def performFaceDetection(img, scale=1.0):
+def perform_face_detection(img, scale=1.0):
     if scale is not 1.0:
         img = cv2.resize(img, (0, 0), fx=scale, fy=scale)
 
@@ -28,12 +28,12 @@ def performFaceDetection(img, scale=1.0):
                            right=int(d.right() / scale)) for d in dets]
 
 
-def featuresCallback(features):
+def features_callback(features):
     global FACE_CANDIDATES_CNN
     FACE_CANDIDATES_CNN = features
 
 
-def faceDetectFrontalCallback(event):
+def face_detect_frontal_callback(event):
     global FACE_CANDIDATES_CNN
 
     if FACE_CANDIDATES_CNN is None:
@@ -48,7 +48,7 @@ def faceDetectFrontalCallback(event):
     # goes through list and only saves the one
     for k, feature in enumerate(FACE_CANDIDATES_CNN.features):
         crop = bridge.imgmsg_to_cv2(feature.crop, "8UC3")
-        dets = performFaceDetection(crop, scale=FRONTAL_SCALE)
+        dets = perform_face_detection(crop, scale=FRONTAL_SCALE)
 
         if len(dets) == 1:
             d = dets[0]
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     # Publishers
     pub = rospy.Publisher('vis_dlib_frontal', Features, queue_size=10)
     # Subscribers
-    rospy.Subscriber(rospy.get_param('~topic_name', '/vis_dlib_cnn'), Features, featuresCallback)
+    rospy.Subscriber(rospy.get_param('~topic_name', '/vis_dlib_cnn'), Features, features_callback)
 
     # Dlib
     dlib_detector = dlib.get_frontal_face_detector()
@@ -117,6 +117,6 @@ if __name__ == "__main__":
     # rospy.wait_for_service('vis_srv_icog_eyestate')
 
     # Launch detectors
-    rospy.Timer(rospy.Duration(FRONTAL_FRATE), faceDetectFrontalCallback)
+    rospy.Timer(rospy.Duration(FRONTAL_FRATE), face_detect_frontal_callback)
 
     rospy.spin()

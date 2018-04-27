@@ -20,7 +20,7 @@ DLIB_CNN_MODEL_FILE = expanduser("~/.dlib/mmod_cnn.dat")
 DLIB_CNN_MODEL_URL = "http://dlib.net/files/mmod_human_face_detector.dat.bz2"
 
 
-def initializeModel():
+def initialize_model():
     urlOpener = urllib.URLopener()
     if not os.path.exists(expanduser("~/.dlib")):
         os.makedirs(expanduser("~/.dlib"))
@@ -32,31 +32,31 @@ def initializeModel():
         open(DLIB_CNN_MODEL_FILE, 'wb').write(data)  # write a uncompressed file
 
 
-def performCNNFaceDetection(img, scale=1.0):
+def perform_cnn_face_detection(img, scale=1.0):
     if scale is not 1.0:
         img = cv2.resize(img, (0, 0), fx=scale, fy=scale)
 
     # perform CNN detection
-    cnnDets = dlib_cnn_detector(img, 1)
+    cnn_dets = dlib_cnn_detector(img, 1)
     # rescale
     return [dlib.rectangle(top=int(d.rect.top() / scale),
                            bottom=int(d.rect.bottom() / scale),
                            left=int(d.rect.left() / scale),
-                           right=int(d.rect.right() / scale)) for d in cnnDets]
+                           right=int(d.rect.right() / scale)) for d in cnn_dets]
 
 
-def imageCallback(data):
+def image_callback(data):
     global IMAGE
     IMAGE = bridge.imgmsg_to_cv2(data, "bgr8")
 
 
-def faceDetectCNNCallback(event):
+def face_detect_cnn_callback(event):
     global IMAGE
 
     if IMAGE is None:
         return
 
-    cnn_results = performCNNFaceDetection(IMAGE, scale=CNN_SCALE)
+    cnn_results = perform_cnn_face_detection(IMAGE, scale=CNN_SCALE)
 
     features = Features()
     try:
@@ -86,7 +86,7 @@ def faceDetectCNNCallback(event):
 
 
 if __name__ == "__main__":
-    initializeModel()
+    initialize_model()
     rospy.init_node('vis_dlib_cnn', anonymous=True)
     bridge = CvBridge()
 
@@ -97,11 +97,11 @@ if __name__ == "__main__":
     # Publishers
     pub = rospy.Publisher('/vis_dlib_cnn', Features, queue_size=10)
     # Subscribers
-    rospy.Subscriber(rospy.get_param('~topic_name', '/camera/image_raw'), Image, imageCallback)
+    rospy.Subscriber(rospy.get_param('~topic_name', '/camera/image_raw'), Image, image_callback)
 
     # Dlib
     dlib_cnn_detector = dlib.cnn_face_detection_model_v1(DLIB_CNN_MODEL_FILE)
     # Launch detectors
-    rospy.Timer(rospy.Duration(CNN_FRATE), faceDetectCNNCallback)
+    rospy.Timer(rospy.Duration(CNN_FRATE), face_detect_cnn_callback)
 
     rospy.spin()
