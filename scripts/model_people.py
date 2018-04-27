@@ -71,7 +71,7 @@ def update_model_from_cnn_feature(feature):
         feature_position = position_of_feature(feature)
         if position_is_close(feature_position, face.position, 200.0) or face.face_id == feature.face_id:
             face.certainty = 1.0
-            if face.shapes == []:
+            if not face.shapes:
                 feature_position.z /= 2.0
                 face.position = blend_positions(feature_position, face.position)
             return

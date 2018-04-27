@@ -39,7 +39,7 @@ def face_detect_frontal_callback(event):
     if FACE_CANDIDATES_CNN is None:
         return
 
-    IMAGE = bridge.imgmsg_to_cv2(FACE_CANDIDATES_CNN.image, "8UC3")
+    image = bridge.imgmsg_to_cv2(FACE_CANDIDATES_CNN.image, "8UC3")
 
     features = Features()
     features.image = FACE_CANDIDATES_CNN.image
@@ -62,7 +62,7 @@ def face_detect_frontal_callback(event):
             roi.width = max(d.right() - d.left(), 0)
 
             ftr.roi = roi
-            ftr.crop = bridge.cv2_to_imgmsg(np.array(IMAGE[roi.y_offset:roi.y_offset + roi.height,
+            ftr.crop = bridge.cv2_to_imgmsg(np.array(image[roi.y_offset:roi.y_offset + roi.height,
                                                      roi.x_offset:roi.x_offset + roi.width, :]))
 
             try:

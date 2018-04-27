@@ -21,13 +21,13 @@ DLIB_CNN_MODEL_URL = "http://dlib.net/files/mmod_human_face_detector.dat.bz2"
 
 
 def initialize_model():
-    urlOpener = urllib.URLopener()
+    url_opener = urllib.URLopener()
     if not os.path.exists(expanduser("~/.dlib")):
         os.makedirs(expanduser("~/.dlib"))
 
     if not os.path.isfile(DLIB_CNN_MODEL_FILE):
         print("downloading %s" % DLIB_CNN_MODEL_URL)
-        urlOpener.retrieve(DLIB_CNN_MODEL_URL, DLIB_CNN_MODEL_FILE)
+        url_opener.retrieve(DLIB_CNN_MODEL_URL, DLIB_CNN_MODEL_FILE)
         data = bz2.BZ2File(DLIB_CNN_MODEL_FILE).read()  # get the decompressed data
         open(DLIB_CNN_MODEL_FILE, 'wb').write(data)  # write a uncompressed file
 

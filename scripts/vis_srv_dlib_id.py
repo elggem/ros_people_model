@@ -24,13 +24,13 @@ current_milli_time = lambda: int(round(time.time() * 1000))
 
 
 def initialize_model():
-    urlOpener = urllib.URLopener()
+    url_opener = urllib.URLopener()
     if not os.path.exists(expanduser("~/.dlib")):
         os.makedirs(expanduser("~/.dlib"))
 
     if not os.path.isfile(DLIB_RECOGNITION_MODEL_FILE):
         print("downloading %s" % DLIB_RECOGNITION_MODEL_URL)
-        urlOpener.retrieve(DLIB_RECOGNITION_MODEL_URL, DLIB_RECOGNITION_MODEL_FILE)
+        url_opener.retrieve(DLIB_RECOGNITION_MODEL_URL, DLIB_RECOGNITION_MODEL_FILE)
         data = bz2.BZ2File(DLIB_RECOGNITION_MODEL_FILE).read()  # get the decompressed data
         open(DLIB_RECOGNITION_MODEL_FILE, 'wb').write(data)  # write a uncompressed file
 
