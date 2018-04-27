@@ -8,6 +8,7 @@ import urllib
 import os
 import bz2
 from cv_bridge import CvBridge, CvBridgeError
+from os.path import expanduser
 
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Point
