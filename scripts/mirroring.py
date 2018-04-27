@@ -23,7 +23,7 @@ class Tracking:
         return self.biggest_face.emotions[EMOTIONS.index(emotype)]
 
     def update_head_position(self, evt):
-        print(' '.join(['%s: %.3f' % (EMOTIONS[n], STATES[n]) for n in xrange(len(EMOTIONS))]))
+        rospy.logdebug(' '.join(['%s: %.3f' % (EMOTIONS[n], STATES[n]) for n in xrange(len(EMOTIONS))]))
 
         for i, emo in enumerate(EMOTIONS):
             expression = EmotionState()
@@ -57,7 +57,7 @@ class Tracking:
                 STATES[i] = STATES[i] * (1.0 - DECAY)
 
 
-print("init")
+rospy.loginfo("init")
 rospy.init_node('FaceTracking')
 node = Tracking()
 rospy.spin()

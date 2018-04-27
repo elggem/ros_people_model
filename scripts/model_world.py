@@ -55,7 +55,7 @@ def features_callback(features):
     for roi in features.rois:
         uv = (roi.x_offset + (roi.width / 2), roi.y_offset + (roi.height / 2))
         ray = project_pixel_and_pose_to_3d_ray(uv)
-        print(ray)
+        rospy.logdebug(ray)
     pass
 
 

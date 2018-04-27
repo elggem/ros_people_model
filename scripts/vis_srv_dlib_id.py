@@ -31,7 +31,7 @@ def initialize_model():
         os.makedirs(expanduser("~/.dlib"))
 
     if not os.path.isfile(DLIB_RECOGNITION_MODEL_FILE):
-        print("downloading %s" % DLIB_RECOGNITION_MODEL_URL)
+        rospy.loginfo("downloading %s" % DLIB_RECOGNITION_MODEL_URL)
         url_opener.retrieve(DLIB_RECOGNITION_MODEL_URL, DLIB_RECOGNITION_MODEL_FILE)
         data = bz2.BZ2File(DLIB_RECOGNITION_MODEL_FILE).read()  # get the decompressed data
         open(DLIB_RECOGNITION_MODEL_FILE, 'wb').write(data)  # write a uncompressed file
@@ -43,15 +43,15 @@ def initialize_face_id():
     global FACE_ID_VECTOR_DICT
     if FACE_ID_VECTOR_DICT is None:
         if os.path.isfile(FACE_ID_VECTOR_FILE):
-            print("Loading Face ID data")
+            rospy.loginfo("Loading Face ID data")
             FACE_ID_VECTOR_DICT = pickle.load(open(FACE_ID_VECTOR_FILE, "rb"))
-            print("number of faces registered: %i" % len(FACE_ID_VECTOR_DICT))
+            rospy.loginfo("number of faces registered: %i" % len(FACE_ID_VECTOR_DICT))
         else:
             FACE_ID_VECTOR_DICT = {}
 
 
 def persist_face_id():
-    print("Persisting Face ID data")
+    rospy.logdebug("Persisting Face ID data")
     pickle.dump(FACE_ID_VECTOR_DICT, open(FACE_ID_VECTOR_FILE, "wb"), protocol=pickle.HIGHEST_PROTOCOL)
 
 
@@ -78,10 +78,10 @@ def get_face_id(face_vec, position, timestamp, threshold=0.6):
     for identifier, stored in FACE_ID_VECTOR_DICT.iteritems():
         timedistance = np.abs(stored['timestamp'] - np.array(timestamp))
         spatialdistance = np.linalg.norm(stored['position'] - np.array(position))
-        print("spatial %.4f" % (spatialdistance))
-        print("time %.4f" % (timedistance))
+        rospy.logdebug("spatial %.4f" % (spatialdistance))
+        rospy.logdebug("time %.4f" % (timedistance))
         if spatialdistance < 100.0 and timedistance < 200:
-            print("adding new vector to face")
+            rospy.logdebug("adding new vector to face")
             add_face_vector_to_id(identifier, face_vec)
             persist_face_id()
             return identifier

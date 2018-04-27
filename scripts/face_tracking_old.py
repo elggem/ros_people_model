@@ -73,7 +73,7 @@ class Tracking:
         distance_y = (self.center[0] - face_position.x) / 960.0
         distance_z = (self.center[1] - face_position.y) / 540.0
 
-        print("Y: %.2f, Z: %.2f" % (distance_y, distance_z))
+        rospy.logdebug("Y: %.2f, Z: %.2f" % (distance_y, distance_z))
 
         # self.refactory = 5 * np.abs(distanceY + distanceZ)
 

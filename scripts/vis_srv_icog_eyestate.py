@@ -44,17 +44,17 @@ def initialize_models():
         os.makedirs(expanduser("~/.dlib"))
 
     if not os.path.isfile(DLIB_SHAPE_MODEL_FILE):
-        print("downloading %s" % DLIB_SHAPE_MODEL_URL)
+        rospy.loginfo("downloading %s" % DLIB_SHAPE_MODEL_URL)
         url_opener.retrieve(DLIB_SHAPE_MODEL_URL, DLIB_SHAPE_MODEL_FILE)
         data = bz2.BZ2File(DLIB_SHAPE_MODEL_FILE).read()  # get the decompressed data
         open(DLIB_SHAPE_MODEL_FILE, 'wb').write(data)  # write a uncompressed file
 
     if not os.path.isfile(EYESTATE_JSON_FILE):
-        print("downloading %s" % EYESTATE_JSON_URL)
+        rospy.loginfo("downloading %s" % EYESTATE_JSON_URL)
         url_opener.retrieve(EYESTATE_JSON_URL, EYESTATE_JSON_FILE)
 
     if not os.path.isfile(EYESTATE_MODEL_FILE):
-        print("downloading %s" % EYESTATE_MODEL_URL)
+        rospy.loginfo("downloading %s" % EYESTATE_MODEL_URL)
         url_opener.retrieve(EYESTATE_MODEL_URL, EYESTATE_MODEL_FILE)
 
 
