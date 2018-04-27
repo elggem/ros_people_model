@@ -22,7 +22,7 @@ class Tracking:
     def get_emotion_value(self, emotype):
         return self.biggest_face.emotions[EMOTIONS.index(emotype)]
 
-    def update_head_position(self, evt):
+    def update_head_position(self, event):
         rospy.logdebug(' '.join(['%s: %.3f' % (EMOTIONS[n], STATES[n]) for n in xrange(len(EMOTIONS))]))
 
         for i, emo in enumerate(EMOTIONS):

@@ -12,7 +12,7 @@ from ros_peoplemodel.msg import Features
 FACES = []
 
 
-def update_model_decay(self):
+def update_model_decay(event):
     global FACES
     to_remove = []
     for i, face in enumerate(FACES):
@@ -94,7 +94,7 @@ def features_perceived(features):
         update_model_from_feature(feature)
 
 
-def publish_faces():
+def publish_faces(event):
     global FACES
     fcs = Faces()
     fcs.faces = FACES

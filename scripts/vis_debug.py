@@ -22,7 +22,7 @@ EMOTIONS = {
 }
 
 
-def debug_draw():
+def debug_draw(event):
     global IMAGE, FACE_CANDIDATES_CNN, FACE_CANDIDATES_FRONTAL
 
     if IMAGE is None:

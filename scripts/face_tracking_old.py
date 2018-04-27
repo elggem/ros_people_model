@@ -59,7 +59,7 @@ class Tracking:
         msg.speed = speed
         self.head_focus_pub.publish(msg)
 
-    def update_head_position(self, evt):
+    def update_head_position(self, event):
         # if self.refactory >= 0:
         #    self.refactory -= 1
         #    print("refactrt: %.2f" % (self.refactory))
