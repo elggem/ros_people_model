@@ -94,7 +94,7 @@ def features_perceived(features):
         update_model_from_feature(feature)
 
 
-def publish_faces(event):
+def publish_faces(self):
     global FACES
     fcs = Faces()
     fcs.faces = FACES

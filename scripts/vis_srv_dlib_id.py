@@ -102,7 +102,7 @@ def handle_request(req):
     # Get the face descriptor
     face_descriptor = dlib_face_recognizer.compute_face_descriptor(image, dlib_shape)
     face_id = get_face_id(face_descriptor, [req.roi.x_offset, req.roi.y_offset, req.roi.height, req.roi.width],
-                          current_milli_time())
+                          current_time_milliseconds())
 
     if face_id is None:
         face_id = ""
