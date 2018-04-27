@@ -20,7 +20,9 @@ DLIB_RECOGNITION_MODEL_URL = "http://dlib.net/files/dlib_face_recognition_resnet
 FACE_ID_VECTOR_FILE = expanduser("~/.dlib/faces.pkl")
 FACE_ID_VECTOR_DICT = None
 
-current_milli_time = lambda: int(round(time.time() * 1000))
+
+def current_time_milliseconds():
+    return int(round(time.time() * 1000))
 
 
 def initialize_model():

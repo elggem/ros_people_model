@@ -9,14 +9,11 @@ import cv2
 import dlib
 import numpy as np
 import rospy
+# -------------------------- set gpu using tf ---------------------------
+import tensorflow as tf
 from cv_bridge import CvBridge
 from ros_peoplemodel.srv import iCogEyeState
 from ros_peoplemodel.srv import iCogEyeStateResponse
-
-current_milli_time = lambda: int(round(time.time() * 1000))
-
-# -------------------------- set gpu using tf ---------------------------
-import tensorflow as tf
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
@@ -35,6 +32,10 @@ DLIB_SHAPE_MODEL_URL = "http://dlib.net/files/shape_predictor_68_face_landmarks.
 
 THRESH_HOLD = 0.5
 IMG_SIZE = (48, 48)
+
+
+def current_time_milliseconds():
+    return int(round(time.time() * 1000))
 
 
 def initialize_models():
