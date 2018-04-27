@@ -1,16 +1,10 @@
 #!/usr/bin/python
-import rospy
-import sys
-import dlib
-import numpy as np
 import cv2
-from cv_bridge import CvBridge, CvBridgeError
-
-from sensor_msgs.msg import Image
-from ros_peoplemodel.msg import Features
-from ros_peoplemodel.msg import Feature
+import numpy as np
+import rospy
+from cv_bridge import CvBridge
 from ros_peoplemodel.msg import Faces
-from ros_peoplemodel.msg import Face
+from sensor_msgs.msg import Image
 
 DRAW_FRAMERATE = 1.0/30.0
 

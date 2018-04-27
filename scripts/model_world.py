@@ -8,17 +8,13 @@ Can optinally receive /pose topic from orb2slam or pauposeestimator
 
 """
 
-#!/usr/bin/python
-import rospy
-import sys
-import numpy as np
 import image_geometry
+# !/usr/bin/python
+import rospy
 import tf
-
 from geometry_msgs.msg import Pose
-from geometry_msgs.msg import Point
-from sensor_msgs.msg import CameraInfo
 from ros_peoplemodel.msg import Features
+from sensor_msgs.msg import CameraInfo
 
 CAMERA_MODEL = image_geometry.PinholeCameraModel()
 CAMERA_FOCAL_X = 0.0

@@ -1,16 +1,10 @@
 #!/usr/bin/python
-import sys
-import rospy
 import numpy as np
-import time, random
-import math
-from collections import deque
-
-from ros_peoplemodel.msg import Features
-from ros_peoplemodel.msg import Feature
+import rospy
+from geometry_msgs.msg import Point
 from ros_peoplemodel.msg import Face
 from ros_peoplemodel.msg import Faces
-from geometry_msgs.msg import Point
+from ros_peoplemodel.msg import Features
 
 # Todo:
 # relative scaling factor from image size...

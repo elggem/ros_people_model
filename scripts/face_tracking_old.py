@@ -1,20 +1,10 @@
 
 #!/usr/bin/python
-import sys
 import rospy
-import numpy as np
-import time, random
-import math
-from collections import deque
-
-from ros_peoplemodel.msg import Features
-from ros_peoplemodel.msg import Feature
-from ros_peoplemodel.msg import Face
-from ros_peoplemodel.msg import Faces
-from geometry_msgs.msg import Point
-from blender_api_msgs.msg import Target, EmotionState, SetGesture
+from blender_api_msgs.msg import Target
 from hr_msgs.msg import TTS
 from hr_msgs.msg import pau
+from ros_peoplemodel.msg import Faces
 
 """
 

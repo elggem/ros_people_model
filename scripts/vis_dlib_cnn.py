@@ -1,19 +1,18 @@
 #!/usr/bin/python
-import rospy
-import sys
-import dlib
-import numpy as np
-import cv2
-import urllib
-import os
 import bz2
-from cv_bridge import CvBridge, CvBridgeError
+import os
+import urllib
 from os.path import expanduser
 
+import cv2
+import dlib
+import numpy as np
+import rospy
+from cv_bridge import CvBridge
 from ros_peoplemodel.msg import Feature
 from ros_peoplemodel.msg import Features
-from sensor_msgs.msg import RegionOfInterest
 from sensor_msgs.msg import Image
+from sensor_msgs.msg import RegionOfInterest
 
 IMAGE = None
 

@@ -1,25 +1,18 @@
 #!/usr/bin/python
-import rospy
-import sys
-import dlib
-import numpy as np
-import cv2
-from cv_bridge import CvBridge, CvBridgeError
-import urllib
-import os
 import bz2
-import time
-import uuid
+import os
 import pickle
+import time
+import urllib
+import uuid
 from os.path import expanduser
 
-from sensor_msgs.msg import Image
-from std_msgs.msg import String
-from geometry_msgs.msg import Point
-
+import dlib
+import numpy as np
+import rospy
+from cv_bridge import CvBridge
 from ros_peoplemodel.srv import DlibFaceID
 from ros_peoplemodel.srv import DlibFaceIDResponse
-
 
 DLIB_RECOGNITION_MODEL_FILE = expanduser("~/.dlib/recognition_resnet.dat")
 DLIB_RECOGNITION_MODEL_URL = "http://dlib.net/files/dlib_face_recognition_resnet_model_v1.dat.bz2"

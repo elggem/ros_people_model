@@ -1,24 +1,15 @@
 #!/usr/bin/python
-import sys
-import dlib
-from skimage import io
-import rospy
-import numpy as np
-from cv_bridge import CvBridge, CvBridgeError
-import os.path
-import urllib
-import pickle
-import uuid
 import bz2
-import cv2
+import os.path
 import time
+import urllib
 from os.path import expanduser
 
-
-from sensor_msgs.msg import Image
-from std_msgs.msg import String
-from geometry_msgs.msg import Point
-
+import cv2
+import dlib
+import numpy as np
+import rospy
+from cv_bridge import CvBridge
 from ros_peoplemodel.srv import iCogEyeState
 from ros_peoplemodel.srv import iCogEyeStateResponse
 
@@ -30,7 +21,6 @@ config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 session = tf.Session(config=config)
 #-------------------  start importing keras module ---------------------
-import keras.backend.tensorflow_backend as K
 from keras.models import model_from_json
 
 

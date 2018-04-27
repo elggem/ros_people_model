@@ -1,18 +1,13 @@
 #!/usr/bin/python
-import rospy
-import sys
-import dlib
-import numpy as np
-import cv2
-import urllib
-import os
 import bz2
-from cv_bridge import CvBridge, CvBridgeError
+import os
+import urllib
 from os.path import expanduser
 
-from sensor_msgs.msg import Image
+import dlib
+import rospy
+from cv_bridge import CvBridge
 from geometry_msgs.msg import Point
-
 from ros_peoplemodel.srv import DlibShapes
 from ros_peoplemodel.srv import DlibShapesResponse
 
