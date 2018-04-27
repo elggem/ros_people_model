@@ -11,6 +11,7 @@ from ros_peoplemodel.msg import Features
 
 FACES = []
 
+
 def updateModelDecay(self):
     global FACES
     to_remove = []
@@ -22,14 +23,15 @@ def updateModelDecay(self):
         del FACES[rem]
 
 
-def positionIsClose(p1,p2,close=0.5):
-    return np.linalg.norm([p1.x-p2.x, p1.y-p2.y, p1.z-p2.z]) < close
+def positionIsClose(p1, p2, close=0.5):
+    return np.linalg.norm([p1.x - p2.x, p1.y - p2.y, p1.z - p2.z]) < close
+
 
 def blendPositions(p1, p2, bld_pos=0.35, bld_z=0.95):
     pt = Point()
-    pt.x = (p1.x * (1.0-bld_pos)) + (p2.x * bld_pos)
-    pt.y = (p1.y * (1.0-bld_pos)) + (p2.y * bld_pos)
-    pt.z = (p1.z * (1.0-bld_z)) + (p2.z * bld_z)
+    pt.x = (p1.x * (1.0 - bld_pos)) + (p2.x * bld_pos)
+    pt.y = (p1.y * (1.0 - bld_pos)) + (p2.y * bld_pos)
+    pt.z = (p1.z * (1.0 - bld_z)) + (p2.z * bld_z)
     return pt
 
 
@@ -39,6 +41,7 @@ def positionOfFeature(feature):
     pt.y = feature.roi.y_offset + (feature.roi.height / 2)
     pt.z = feature.roi.width * feature.roi.height * 0.00095
     return pt
+
 
 def updateModelFromFeature(feature):
     global FACES
@@ -61,6 +64,7 @@ def updateModelFromFeature(feature):
 
     FACES.append(face)
 
+
 def updateModelFromCNNFeature(feature):
     # Do not use CNN features for position update or anything, just certainty increase.
     for face in FACES:
@@ -79,9 +83,11 @@ def updateModelFromCNNFeature(feature):
     face.certainty = 1.0
     FACES.append(face)
 
+
 def cnnFeaturesPerceived(features):
     for feature in features.features:
         updateModelFromCNNFeature(feature)
+
 
 def featuresPerceived(features):
     for feature in features.features:
@@ -103,7 +109,7 @@ if __name__ == "__main__":
     rospy.Subscriber("/vis_dlib_cnn", Features, cnnFeaturesPerceived)
     rospy.Subscriber("/vis_dlib_frontal", Features, featuresPerceived)
 
-    rospy.Timer(rospy.Duration(1.0/30.0), updateModelDecay)
-    rospy.Timer(rospy.Duration(1.0/30.0), publishFaces)
+    rospy.Timer(rospy.Duration(1.0 / 30.0), updateModelDecay)
+    rospy.Timer(rospy.Duration(1.0 / 30.0), publishFaces)
 
     rospy.spin()

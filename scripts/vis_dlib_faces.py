@@ -14,17 +14,18 @@ from sensor_msgs.msg import RegionOfInterest
 
 FACE_CANDIDATES_CNN = None
 
+
 def performFaceDetection(img, scale=1.0):
     if scale is not 1.0:
-        img = cv2.resize(img, (0,0), fx=scale, fy=scale)
+        img = cv2.resize(img, (0, 0), fx=scale, fy=scale)
 
     # perform CNN detection
     dets = dlib_detector(img, 1)
     # rescale
-    return [dlib.rectangle(top    = int(d.top()    / scale),
-                           bottom = int(d.bottom() / scale),
-                           left   = int(d.left()   / scale),
-                           right  = int(d.right()  / scale)) for d in dets]
+    return [dlib.rectangle(top=int(d.top() / scale),
+                           bottom=int(d.bottom() / scale),
+                           left=int(d.left() / scale),
+                           right=int(d.right() / scale)) for d in dets]
 
 
 def featuresCallback(features):
@@ -44,12 +45,12 @@ def faceDetectFrontalCallback(event):
     features.image = FACE_CANDIDATES_CNN.image
     features.features = []
 
-    #goes through list and only saves the one
+    # goes through list and only saves the one
     for k, feature in enumerate(FACE_CANDIDATES_CNN.features):
         crop = bridge.imgmsg_to_cv2(feature.crop, "8UC3")
         dets = performFaceDetection(crop, scale=FRONTAL_SCALE)
 
-        if len(dets)==1:
+        if len(dets) == 1:
             d = dets[0]
 
             ftr = Feature()
@@ -57,12 +58,12 @@ def faceDetectFrontalCallback(event):
             roi = RegionOfInterest()
             roi.x_offset = max(feature.roi.x_offset + d.left(), 0)
             roi.y_offset = max(feature.roi.y_offset + d.top(), 0)
-            roi.height =   max(d.bottom() - d.top(), 0)
-            roi.width =    max(d.right() - d.left(), 0)
+            roi.height = max(d.bottom() - d.top(), 0)
+            roi.width = max(d.right() - d.left(), 0)
 
             ftr.roi = roi
-            ftr.crop = bridge.cv2_to_imgmsg(np.array(IMAGE[roi.y_offset:roi.y_offset+roi.height,
-                                                               roi.x_offset:roi.x_offset+roi.width, :]))
+            ftr.crop = bridge.cv2_to_imgmsg(np.array(IMAGE[roi.y_offset:roi.y_offset + roi.height,
+                                                     roi.x_offset:roi.x_offset + roi.width, :]))
 
             try:
                 ftr.shapes = srv_dlib_shapes(ftr.crop).shape
@@ -88,12 +89,13 @@ def faceDetectFrontalCallback(event):
 
     pub.publish(features)
 
+
 if __name__ == "__main__":
     rospy.init_node('vis_dlib_frontal', anonymous=True)
     bridge = CvBridge()
 
     FRONTAL_SCALE = rospy.get_param('~scale', 0.4)
-    FRONTAL_FRATE = 1.0/rospy.get_param('~fps', 5.0)
+    FRONTAL_FRATE = 1.0 / rospy.get_param('~fps', 5.0)
 
     # Publishers
     pub = rospy.Publisher('vis_dlib_frontal', Features, queue_size=10)
@@ -109,10 +111,10 @@ if __name__ == "__main__":
     srv_icog_emopy = rospy.ServiceProxy('vis_srv_icog_emopy', iCogEmopy, persistent=True)
     srv_icog_eyestate = rospy.ServiceProxy('vis_srv_icog_eyestate', iCogEyeState, persistent=True)
 
-    #rospy.wait_for_service('vis_srv_dlib_shapes')
-    #rospy.wait_for_service('vis_srv_dlib_id')
-    #rospy.wait_for_service('vis_srv_icog_emopy')
-    #rospy.wait_for_service('vis_srv_icog_eyestate')
+    # rospy.wait_for_service('vis_srv_dlib_shapes')
+    # rospy.wait_for_service('vis_srv_dlib_id')
+    # rospy.wait_for_service('vis_srv_icog_emopy')
+    # rospy.wait_for_service('vis_srv_icog_eyestate')
 
     # Launch detectors
     rospy.Timer(rospy.Duration(FRONTAL_FRATE), faceDetectFrontalCallback)

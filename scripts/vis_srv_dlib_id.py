@@ -22,6 +22,7 @@ FACE_ID_VECTOR_DICT = None
 
 current_milli_time = lambda: int(round(time.time() * 1000))
 
+
 def initializeModel():
     urlOpener = urllib.URLopener()
     if not os.path.exists(expanduser("~/.dlib")):
@@ -30,8 +31,8 @@ def initializeModel():
     if not os.path.isfile(DLIB_RECOGNITION_MODEL_FILE):
         print("downloading %s" % DLIB_RECOGNITION_MODEL_URL)
         urlOpener.retrieve(DLIB_RECOGNITION_MODEL_URL, DLIB_RECOGNITION_MODEL_FILE)
-        data = bz2.BZ2File(DLIB_RECOGNITION_MODEL_FILE).read() # get the decompressed data
-        open(DLIB_RECOGNITION_MODEL_FILE, 'wb').write(data) # write a uncompressed file
+        data = bz2.BZ2File(DLIB_RECOGNITION_MODEL_FILE).read()  # get the decompressed data
+        open(DLIB_RECOGNITION_MODEL_FILE, 'wb').write(data)  # write a uncompressed file
 
 
 def initializeFaceID():
@@ -46,9 +47,11 @@ def initializeFaceID():
         else:
             FACE_ID_VECTOR_DICT = {}
 
+
 def persistFaceID():
     print("Persisting Face ID data")
     pickle.dump(FACE_ID_VECTOR_DICT, open(FACE_ID_VECTOR_FILE, "wb"), protocol=pickle.HIGHEST_PROTOCOL)
+
 
 def addFaceVectorToID(identifier, face_vec):
     old_vectors = FACE_ID_VECTOR_DICT[identifier]['vector']
@@ -58,7 +61,7 @@ def addFaceVectorToID(identifier, face_vec):
 def getFaceID(face_vec, position, timestamp, threshold=0.6):
     face_vec = np.array([i for i in face_vec])
 
-    #for identifier, stored in FACE_ID_VECTOR_DICT.iteritems():
+    # for identifier, stored in FACE_ID_VECTOR_DICT.iteritems():
     #    print stored['position']
 
     # Compares given face vector with stored to determine match
@@ -81,7 +84,8 @@ def getFaceID(face_vec, position, timestamp, threshold=0.6):
             persistFaceID()
             return identifier
 
-    FACE_ID_VECTOR_DICT[uuid.uuid4().hex] = {'vector': [face_vec], 'position':np.array(position), 'timestamp':timestamp}
+    FACE_ID_VECTOR_DICT[uuid.uuid4().hex] = {'vector': [face_vec], 'position': np.array(position),
+                                             'timestamp': timestamp}
     persistFaceID()
 
 
@@ -95,12 +99,14 @@ def handleRequest(req):
 
     # Get the face descriptor
     face_descriptor = dlib_face_recognizer.compute_face_descriptor(image, dlib_shape)
-    face_id = getFaceID(face_descriptor, [req.roi.x_offset, req.roi.y_offset, req.roi.height, req.roi.width], current_milli_time())
+    face_id = getFaceID(face_descriptor, [req.roi.x_offset, req.roi.y_offset, req.roi.height, req.roi.width],
+                        current_milli_time())
 
     if face_id is None:
         face_id = ""
 
     return DlibFaceIDResponse(face_id)
+
 
 if __name__ == "__main__":
     initializeModel()

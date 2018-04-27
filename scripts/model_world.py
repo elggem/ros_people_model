@@ -20,7 +20,8 @@ CAMERA_MODEL = image_geometry.PinholeCameraModel()
 CAMERA_FOCAL_X = 0.0
 CAMERA_FOCAL_Y = 0.0
 
-POSE_QUATERNION = [0.0,0.0,0.0,0.0]
+POSE_QUATERNION = [0.0, 0.0, 0.0, 0.0]
+
 
 # rotate vector v1 by quaternion q1
 # https://answers.ros.org/question/196149/how-to-rotate-vector-by-quaternion-in-python/
@@ -33,26 +34,28 @@ def qv_mult(q1, v1):
         tf.transformations.quaternion_conjugate(q1)
     )[:3]
 
+
 def projectPixelAndPoseTo3dRay(uv):
     global POSE_QUATERNION
     return qv_mult(POSE_QUATERNION, CAMERA_MODEL.projectPixelTo3dRay(uv))
-
-
 
 
 def poseCallback(pose):
     global POSE_QUATERNION
     POSE_QUATERNION = [pose.orientation.w, pose.orientation.x, pose.orientation.y, pose.orientation.z]
 
+
 def cameraInfoCallback(msg):
     global CAMERA_MODEL
     CAMERA_MODEL.fromCameraInfo(msg)
 
+
 def featuresCallback(features):
     for roi in features.rois:
-        uv = (roi.x_offset + (roi.width/2), roi.y_offset + (roi.height/2))
+        uv = (roi.x_offset + (roi.width / 2), roi.y_offset + (roi.height / 2))
         ray = projectPixelAndPoseTo3dRay(uv)
-        print ray
+        print
+        ray
     pass
 
 

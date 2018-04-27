@@ -23,8 +23,9 @@ def initializeModel():
     if not os.path.isfile(DLIB_SHAPE_MODEL_FILE):
         print("downloading %s" % DLIB_SHAPE_MODEL_URL)
         urlOpener.retrieve(DLIB_SHAPE_MODEL_URL, DLIB_SHAPE_MODEL_FILE)
-        data = bz2.BZ2File(DLIB_SHAPE_MODEL_FILE).read() # get the decompressed data
-        open(DLIB_SHAPE_MODEL_FILE, 'wb').write(data) # write a uncompressed file
+        data = bz2.BZ2File(DLIB_SHAPE_MODEL_FILE).read()  # get the decompressed data
+        open(DLIB_SHAPE_MODEL_FILE, 'wb').write(data)  # write a uncompressed file
+
 
 def handleRequest(req):
     image = bridge.imgmsg_to_cv2(req.image, "8UC3")
@@ -34,6 +35,7 @@ def handleRequest(req):
     shape_as_points = [Point(p.x, p.y, 0) for p in shape.parts()]
 
     return DlibShapesResponse(shape_as_points)
+
 
 if __name__ == "__main__":
     initializeModel()
