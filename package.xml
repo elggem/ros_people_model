@@ -56,6 +56,7 @@
     <build_depend>geometry_msgs</build_depend>
     <build_depend>hr_msgs</build_depend>
     <build_depend>blender_api_msgs</build_depend>
+    <build_depend>dynamic_reconfigure</build_depend>
 
     <build_export_depend>rospy</build_export_depend>
     <build_export_depend>std_msgs</build_export_depend>
