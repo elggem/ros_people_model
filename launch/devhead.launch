@@ -2,7 +2,7 @@
   <node name="vis_dlib_cnn" pkg="ros_peoplemodel" type="vis_dlib_cnn.py" output="screen">
     <param name="topic_name" value="/camera/image_raw" />
     <param name="scale" type="double" value="0.2" />
-    <param name="fps" type="double" value="5.0" />
+    <param name="fps" type="double" value="1.0" />
     <param name="padding" type="double" value="0.1" />
   </node>
 
