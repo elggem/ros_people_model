@@ -145,7 +145,6 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 install(PROGRAMS
-   scripts/face_tracking_old.py
    scripts/mirroring.py
    scripts/model_debug.py
    scripts/model_people.py
