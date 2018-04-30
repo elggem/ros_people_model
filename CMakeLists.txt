@@ -2,7 +2,15 @@ cmake_minimum_required(VERSION 2.8.3)
 project(ros_peoplemodel)
 
 ## Find catkin macros and libraries
-find_package(catkin REQUIRED COMPONENTS std_msgs sensor_msgs geometry_msgs message_generation)
+find_package(catkin REQUIRED COMPONENTS
+    std_msgs
+    sensor_msgs
+    geometry_msgs
+    message_generation
+    hr_msgs
+    blender_api_msgs
+    dynamic_reconfigure
+)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -66,10 +74,9 @@ generate_messages(
 ##     and list every .cfg file to be processed
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
+generate_dynamic_reconfigure_options(
+   cfg/RosPeopleModel.cfg
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -137,10 +144,21 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(PROGRAMS
+   scripts/face_tracking_old.py
+   scripts/mirroring.py
+   scripts/model_debug.py
+   scripts/model_people.py
+   scripts/model_world.py
+   scripts/vis_debug.py
+   scripts/vis_dlib_cnn.py
+   scripts/vis_dlib_faces.py
+   scripts/vis_srv_dlib_id.py
+   scripts/vis_srv_dlib_shapes.py
+   scripts/vis_srv_icog_emopy.py
+   scripts/vis_srv_icog_eyestate.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark executables and/or libraries for installation
 # install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
@@ -157,11 +175,14 @@ include_directories(
 # )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+install(FILES
+   launch/launch_all.launch
+   launch/perception.launch
+   launch/remote_mirroring.launch
+   launch/webcam_dual.launch
+   launch/webcam_single.launch
+   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 
 #############
 ## Testing ##
