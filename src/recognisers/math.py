@@ -1,5 +1,17 @@
 import cv2
+import dlib
 import numpy as np
+from geometry_msgs.msg import Point
+
+
+def face_landmarks_to_geometry_msgs_points(face_landmarks):
+    return [Point(p.x, p.y, 0) for p in face_landmarks.parts()]
+
+
+def geometry_msgs_points_to_face_landmarks(geometry_msgs_points):
+    points = dlib.points()
+    [points.append(dlib.point(int(p.x), int(p.y))) for p in geometry_msgs_points]
+    return points
 
 
 def sanitize(image, rescale_size):

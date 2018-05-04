@@ -1,16 +1,15 @@
-#!/usr/bin/python
 import bz2
 import os
 import pickle
 import time
 import urllib
 import uuid
-from cv_bridge import CvBridge
 from os.path import expanduser
 
 import dlib
 import numpy as np
 import rospy
+from cv_bridge import CvBridge
 
 
 class FaceIdRecogniser(object):
@@ -92,7 +91,7 @@ class FaceIdRecogniser(object):
     def recognize(self, image, roi, landmarks):
         d = dlib.rectangle(0, 0, image.shape[0], image.shape[1])
 
-        dlib_shape = dlib.full_object_detection(d, landmarks.parts())
+        dlib_shape = dlib.full_object_detection(d, landmarks)
 
         # Get the face descriptor
         face_descriptor = self.dlib_face_recognizer.compute_face_descriptor(image, dlib_shape)

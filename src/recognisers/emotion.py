@@ -1,23 +1,18 @@
-#!/usr/bin/python
 import bz2
 import os.path
 import time
 import urllib
-from cv_bridge import CvBridge
 from os.path import expanduser
 
 import dlib
 import numpy as np
+import recognisers as rp
 import rospy
 # -------------------------- set gpu using tf ---------------------------
 import tensorflow as tf
-
-config = tf.ConfigProto()
-config.gpu_options.allow_growth = True
-session = tf.Session(config=config)
+from cv_bridge import CvBridge
 # -------------------  start importing keras module ---------------------
 from keras.models import model_from_json
-import ros_people_model as rp
 
 graph = tf.get_default_graph()
 
@@ -132,7 +127,7 @@ class EmotionRecogniser(object):
         """
 
         dlib_points = np.zeros((68, 2))
-        for i, part in enumerate(shapes.parts()):
+        for i, part in enumerate(shapes):
             dlib_points[i] = [part.x, part.y]
 
         # scale dlib_points from the scale of image they were created from to another scale
