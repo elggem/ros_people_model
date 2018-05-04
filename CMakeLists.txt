@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(ros_peoplemodel)
+project(ros_people_model)
 
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
@@ -19,7 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 ## TODO: implement this for dependencies such as dlib
-# catkin_python_setup()
+catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -37,10 +37,10 @@ add_message_files(
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
-  DlibFaceID.srv
-  DlibShapes.srv
-  iCogEyeState.srv
-  iCogEmopy.srv
+  Emotion.srv
+  EyeState.srv
+  FaceId.srv
+  FaceLandmarks.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -55,7 +55,7 @@ generate_messages(
   DEPENDENCIES
   std_msgs
   sensor_msgs
-  ros_peoplemodel
+  ros_people_model
   geometry_msgs
 )
 
@@ -89,7 +89,7 @@ generate_dynamic_reconfigure_options(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES ros_peoplemodel
+#  LIBRARIES ros_people_model
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
@@ -107,7 +107,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/ros_peoplemodel.cpp
+#   src/${PROJECT_NAME}/ros_people_model.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -118,7 +118,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/ros_peoplemodel.cpp)
+# add_executable(${PROJECT_NAME}_node src/ros_people_model.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -145,17 +145,13 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 install(PROGRAMS
-   scripts/mirroring.py
-   scripts/model_debug.py
-   scripts/model_people.py
-   scripts/model_world.py
-   scripts/vis_debug.py
-   scripts/vis_dlib_cnn.py
-   scripts/vis_dlib_faces.py
-   scripts/vis_srv_dlib_id.py
-   scripts/vis_srv_dlib_shapes.py
-   scripts/vis_srv_icog_emopy.py
-   scripts/vis_srv_icog_eyestate.py
+   scripts/run_debugger.py
+   scripts/run_emotion_recogniser.py
+   scripts/run_eye_state_recogniser.py
+   scripts/run_face_detector.py
+   scripts/run_frontal_face_detector.py
+   scripts/run_face_id_recogniser.py
+   scripts/run_face_landmarks_recogniser.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
