@@ -3,16 +3,14 @@ import bz2
 import os.path
 import time
 import urllib
+from cv_bridge import CvBridge
 from os.path import expanduser
 
-import cv2
 import dlib
 import numpy as np
 import rospy
 # -------------------------- set gpu using tf ---------------------------
 import tensorflow as tf
-from cv_bridge import CvBridge
-import ros
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True

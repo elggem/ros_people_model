@@ -2,13 +2,12 @@
 import bz2
 import os
 import urllib
+from cv_bridge import CvBridge
 from os.path import expanduser
 
 import dlib
 import rospy
-from cv_bridge import CvBridge
 from geometry_msgs.msg import Point
-import numpy as np
 
 
 class LandmarkRecogniser(object):

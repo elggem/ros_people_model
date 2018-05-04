@@ -5,12 +5,12 @@ import pickle
 import time
 import urllib
 import uuid
+from cv_bridge import CvBridge
 from os.path import expanduser
 
 import dlib
 import numpy as np
 import rospy
-from cv_bridge import CvBridge
 
 
 class FaceIdRecogniser(object):
