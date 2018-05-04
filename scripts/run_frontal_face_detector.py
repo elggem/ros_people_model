@@ -32,7 +32,7 @@ class FrontalFaceDetector(object):
 
         self.srv_pool = ThreadPool(processes=3)
         self.srv_eye_state = rospy.ServiceProxy('eye_state_recogniser', EyeState, persistent=True)
-        self.srv_face_id = rospy.ServiceProxy('face_id_recogniser', FaceId, persistent=False)
+        self.srv_face_id = rospy.ServiceProxy('face_id_recogniser', FaceId, persistent=True)
         self.srv_emotion = rospy.ServiceProxy('emotion_recogniser', Emotion, persistent=True)
         self.srv_landmarks = rospy.ServiceProxy('face_landmarks_recogniser', FaceLandmarks, persistent=True)
 
@@ -76,18 +76,24 @@ class FrontalFaceDetector(object):
 
                                 if self.cfg.run_face_id:
                                     face_id_result = self.srv_pool.apply_async(self.srv_face_id, (
-                                    ftr.crop, ftr.roi, ftr.shapes))  # tuple of args for foo
+                                    ftr.crop, ftr.roi, ftr.shapes))
 
-                                if self.cfg.run_emotion:
+                                if self.cfg.run_face_emotions:
                                     emotion_result = self.srv_pool.apply_async(self.srv_emotion, (ftr.crop, ftr.shapes))
+
+                                if self.cfg.run_eye_state:
+                                    eye_state_result = self.srv_pool.apply_async(self.srv_eye_state, (ftr.crop, ftr.shapes))
 
                                 if self.cfg.run_face_id:
                                     ftr.face_id = face_id_result.get().face_id
 
-                                if self.cfg.run_emotion:
+                                if self.cfg.run_face_emotions:
                                     ftr.emotions = emotion_result.get().emotions
-                            except Exception:
-                                pass
+
+                                if self.cfg.run_eye_state:
+                                    ftr.eyes_closed = eye_state_result.get().eyes_closed
+                            except Exception as e:
+                                rospy.logerr("Exception getting features: {0}".format(e))
 
                 features.features.append(ftr)
 
