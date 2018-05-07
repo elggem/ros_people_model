@@ -26,5 +26,6 @@
     <node name="face_id_recogniser" pkg="ros_people_model" type="run_face_id_recogniser.py" output="screen"/>
     <node name="face_landmarks_recogniser" pkg="ros_people_model" type="run_face_landmarks_recogniser.py" output="screen"/>
 
-    <!--<node name="debugger" pkg="ros_people_model" type="run_debugger.py" output="screen"/>-->
+    <node name="model_people" pkg="ros_people_model" type="model_people.py" output="screen" />
+    <node name="debugger" pkg="ros_people_model" type="run_debugger.py" output="screen"/>
 </launch>
