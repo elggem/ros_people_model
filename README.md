@@ -1,5 +1,7 @@
 # ros_peoplemodel
 
+    install_requires=['dlib', 'tensorflow-gpu', 'numpy', 'opencv-python']
+
 ![Screenshot Debug Output](https://raw.githubusercontent.com/elggem/ros_peoplemodel/master/images/model_debug.png)
 
 This is a collection of perception scripts primarily aimed at use in a  social robotics context. It combines various Deep Learning classifiers to build a model of people and their attributes. Working so far are modules for:
