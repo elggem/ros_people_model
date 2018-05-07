@@ -1,6 +1,4 @@
-# ros_peoplemodel
-
-    install_requires=['dlib', 'tensorflow-gpu', 'numpy', 'opencv-python']
+# ros_people_model
 
 ![Screenshot Debug Output](https://raw.githubusercontent.com/elggem/ros_peoplemodel/master/images/model_debug.png)
 
