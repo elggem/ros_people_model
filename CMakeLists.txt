@@ -152,6 +152,9 @@ install(PROGRAMS
    scripts/run_frontal_face_detector.py
    scripts/run_face_id_recogniser.py
    scripts/run_face_landmarks_recogniser.py
+   scripts/model_people.py
+   scripts/mirroring.py
+   scripts/model_world.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
