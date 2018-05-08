@@ -1,17 +1,7 @@
 <launch>
-    <node name="vis_dlib_faces" pkg="ros_people_model" type="vis_dlib_faces.py" output="screen">
-        <param name="topic_name" value="/vis_dlib_cnn"/>
-        <param name="scale" type="double" value="0.3"/>
-        <param name="fps" type="double" value="10.0"/>
-        <param name="run_face_landmarks" value="false" type="bool"/>
-        <param name="run_face_id" value="false" type="bool"/>
-        <param name="run_face_emotions" value="true" type="bool"/>
-        <param name="run_eye_state" value="false" type="bool"/>
-    </node>
-
     <node name="face_detector" pkg="ros_people_model" type="run_face_detector.py" output="screen">
         <param name="topic_name" value="/camera/image_raw"/>
-        <param name="scale" type="double" value="0.2"/>
+        <param name="scale" type="double" value="0.5"/>
         <param name="fps" type="double" value="1.0"/>
         <param name="padding" type="double" value="0.1"/>
     </node>
