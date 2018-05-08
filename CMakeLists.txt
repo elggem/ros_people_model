@@ -174,6 +174,7 @@ install(PROGRAMS
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 install(FILES
+   launch/devhead.launch
    launch/launch_all.launch
    launch/perception.launch
    launch/remote_mirroring.launch
