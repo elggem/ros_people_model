@@ -1,27 +1,27 @@
 <launch>
-  <node name="vis_dlib_cnn" pkg="ros_peoplemodel" type="vis_dlib_cnn.py" output="screen">
+  <node name="vis_dlib_cnn" pkg="ros_people_model" type="vis_dlib_cnn.py" output="screen">
     <param name="topic_name" value="/camera/image_raw" />
     <param name="scale" type="double" value="0.6" />
     <param name="fps" type="double" value="6.0" />
     <param name="padding" type="double" value="0.1" />
   </node>
 
-  <node name="vis_dlib_faces" pkg="ros_peoplemodel" type="vis_dlib_faces.py" output="screen">
+  <node name="vis_dlib_faces" pkg="ros_people_model" type="vis_dlib_faces.py" output="screen">
     <param name="topic_name" value="/vis_dlib_cnn" />
     <param name="scale" type="double" value="0.6" />
     <param name="fps" type="double" value="15.0" />
   </node>
 
-  <node name="vis_srv_dlib_shapes" pkg="ros_peoplemodel" type="vis_srv_dlib_shapes.py" output="screen" />
-  <node name="vis_srv_dlib_id" pkg="ros_peoplemodel" type="vis_srv_dlib_id.py" output="screen" />
-  <node name="vis_srv_icog_emopy" pkg="ros_peoplemodel" type="vis_srv_icog_emopy.py" output="screen" />
-  <node name="vis_srv_icog_eyestate" pkg="ros_peoplemodel" type="vis_srv_icog_eyestate.py" output="screen" />
+  <node name="vis_srv_dlib_shapes" pkg="ros_people_model" type="vis_srv_dlib_shapes.py" output="screen" />
+  <node name="vis_srv_dlib_id" pkg="ros_people_model" type="vis_srv_dlib_id.py" output="screen" />
+  <node name="vis_srv_icog_emopy" pkg="ros_people_model" type="vis_srv_icog_emopy.py" output="screen" />
+  <node name="vis_srv_icog_eyestate" pkg="ros_people_model" type="vis_srv_icog_eyestate.py" output="screen" />
 
-  <node name="model_people" pkg="ros_peoplemodel" type="model_people.py" output="screen" />
+  <node name="model_people" pkg="ros_people_model" type="model_people.py" output="screen" />
 
-  <node name="vis_debug" pkg="ros_peoplemodel" type="vis_debug.py" output="screen" />
-  <!--<node name="model_debug" pkg="ros_peoplemodel" type="model_debug.py" output="screen" />-->
+  <node name="vis_debug" pkg="ros_people_model" type="vis_debug.py" output="screen" />
+  <!--<node name="model_debug" pkg="recognisers" type="model_debug.py" output="screen" />-->
 
-  <node name="mirroring" pkg="ros_peoplemodel" type="mirroring.py" output="screen" />
+  <node name="mirroring" pkg="ros_people_model" type="mirroring.py" output="screen" />
 
 </launch>

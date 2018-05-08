@@ -4,4 +4,4 @@
 Header                    header
 
 # Features
-ros_peoplemodel/Face[]   faces
+ros_people_model/Face[]   faces

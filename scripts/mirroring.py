@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import rospy
 from blender_api_msgs.msg import EmotionState
-from ros_peoplemodel.msg import Faces
+from ros_people_model.msg import Faces
 
 EMOTIONS = ['anger', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
 EXPRESSIONS = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprised', 'none']

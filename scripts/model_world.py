@@ -14,7 +14,7 @@ import image_geometry
 import rospy
 import tf
 from geometry_msgs.msg import Pose
-from ros_peoplemodel.msg import Features
+from ros_people_model.msg import Features
 from sensor_msgs.msg import CameraInfo
 
 CAMERA_MODEL = image_geometry.PinholeCameraModel()

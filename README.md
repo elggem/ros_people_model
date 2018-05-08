@@ -1,4 +1,4 @@
-# ros_peoplemodel
+# ros_people_model
 
 ![Screenshot Debug Output](https://raw.githubusercontent.com/elggem/ros_peoplemodel/master/images/model_debug.png)
 

@@ -2,7 +2,7 @@
 import cv2
 import rospy
 from cv_bridge import CvBridge
-from ros_peoplemodel.msg import Features
+from ros_people_model.msg import Features
 from sensor_msgs.msg import Image
 
 DRAW_FRAMERATE = 1.0 / 30.0

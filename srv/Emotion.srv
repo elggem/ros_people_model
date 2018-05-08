@@ -1,3 +1,4 @@
 sensor_msgs/Image image
+geometry_msgs/Point[] landmarks
 ---
 float32[]             emotions

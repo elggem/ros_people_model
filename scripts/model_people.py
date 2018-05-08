@@ -2,9 +2,9 @@
 import numpy as np
 import rospy
 from geometry_msgs.msg import Point
-from ros_peoplemodel.msg import Face
-from ros_peoplemodel.msg import Faces
-from ros_peoplemodel.msg import Features
+from ros_people_model.msg import Face
+from ros_people_model.msg import Faces
+from ros_people_model.msg import Features
 
 # Todo:
 # relative scaling factor from image size...

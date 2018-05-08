@@ -4,5 +4,4 @@
 # Global fields:
 Header            header
 
-sensor_msgs/Image image
-ros_peoplemodel/Feature[] features
+ros_people_model/Feature[] features
