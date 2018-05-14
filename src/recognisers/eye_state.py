@@ -130,7 +130,7 @@ class EyeStateRecogniser(object):
             left_closed = ((-left_prediction[1] + left_prediction[0]) / 2.0) + 0.5
             right_closed = ((-right_prediction[1] + right_prediction[0]) / 2.0) + 0.5
 
-        return [left_closed, right_closed]
+        return [1.0 - left_closed, 1.0 - right_closed]
 
     @staticmethod
     def get_right_key_points(key_points):
