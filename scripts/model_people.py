@@ -52,7 +52,7 @@ def update_model_from_feature(feature):
             face.crop = feature.crop
             face.shapes = feature.shapes
             face.emotions = feature.emotions
-            face.eyes_closed = feature.eyes_closed
+            face.eye_states = feature.eye_states
             face.face_id = feature.face_id
             face.certainty = 1.0
             return
