@@ -1,10 +1,9 @@
 #!/usr/bin/python
-from os.path import expanduser
+from cv_bridge import CvBridge
 from threading import Lock
 
 import numpy as np
 import rospy
-from cv_bridge import CvBridge
 from recognisers.face import FaceRecogniser
 from ros_people_model.msg import Feature
 from ros_people_model.msg import Features
@@ -13,8 +12,6 @@ from sensor_msgs.msg import RegionOfInterest
 
 
 class FaceDetectorNode(object):
-    DLIB_CNN_MODEL_FILE = expanduser("~/.dlib/mmod_cnn.dat")
-    DLIB_CNN_MODEL_URL = "http://dlib.net/files/mmod_human_face_detector.dat.bz2"
 
     def __init__(self, recogniser):
         self.recogniser = recogniser
@@ -67,12 +64,13 @@ class FaceDetectorNode(object):
 
 
 if __name__ == "__main__":
-    rospy.init_node('vis_dlib_cnn', anonymous=True)
+    rospy.init_node('face_detector')
 
     try:
         recogniser = FaceRecogniser()
-        recogniser.initialize_model()
+        recogniser.initialise()
         node = FaceDetectorNode(recogniser)
+
         rospy.spin()
     except rospy.ROSInterruptException:
         pass
