@@ -1,57 +1,53 @@
-import bz2
 import os
 import pickle
 import time
-import urllib
 import uuid
+from cv_bridge import CvBridge
 from os.path import expanduser
 
 import dlib
 import numpy as np
 import rospy
-from cv_bridge import CvBridge
+from recognisers.recogniser import Recogniser
 
 
-class FaceIdRecogniser(object):
-    DLIB_RECOGNITION_MODEL_FILE = expanduser("~/.dlib/recognition_resnet.dat")
+class FaceIdRecogniser(Recogniser):
+    DLIB_RECOGNITION_MODEL_FILE = "recognition_resnet.dat"
     DLIB_RECOGNITION_MODEL_URL = "http://dlib.net/files/dlib_face_recognition_resnet_model_v1.dat.bz2"
 
-    FACE_ID_VECTOR_FILE = expanduser("~/.dlib/faces.pkl")
+    FACE_ID_VECTOR_FILE = "faces.pkl"
     FACE_ID_VECTOR_DICT = None
 
     def __init__(self):
+        Recogniser.__init__(self)
         self.bridge = CvBridge()
-        self.dlib_face_recognizer = dlib.face_recognition_model_v1(FaceIdRecogniser.DLIB_RECOGNITION_MODEL_FILE)
 
     @staticmethod
     def current_time_milliseconds():
         return int(round(time.time() * 1000))
 
-    def initialize_models(self):
-        url_opener = urllib.URLopener()
-        if not os.path.exists(expanduser("~/.dlib")):
-            os.makedirs(expanduser("~/.dlib"))
-
-        if not os.path.isfile(FaceIdRecogniser.DLIB_RECOGNITION_MODEL_FILE):
-            rospy.loginfo("downloading %s" % FaceIdRecogniser.DLIB_RECOGNITION_MODEL_URL)
-            url_opener.retrieve(FaceIdRecogniser.DLIB_RECOGNITION_MODEL_URL,
-                                FaceIdRecogniser.DLIB_RECOGNITION_MODEL_FILE)
-            data = bz2.BZ2File(FaceIdRecogniser.DLIB_RECOGNITION_MODEL_FILE).read()  # get the decompressed data
-            open(FaceIdRecogniser.DLIB_RECOGNITION_MODEL_FILE, 'wb').write(data)  # write a uncompressed file
+    def initialise(self, download=True):
+        # download models
+        self.download_model(FaceIdRecogniser.DLIB_RECOGNITION_MODEL_URL, FaceIdRecogniser.DLIB_RECOGNITION_MODEL_FILE)
 
         # Determines if there is pickled face recognition array on disk and restores it.
         # Otherwise initializes empty array.
         if FaceIdRecogniser.FACE_ID_VECTOR_DICT is None:
-            if os.path.isfile(FaceIdRecogniser.FACE_ID_VECTOR_FILE):
+            if os.path.isfile(self.get_file_path(FaceIdRecogniser.FACE_ID_VECTOR_FILE)):
                 rospy.loginfo("Loading Face ID data")
-                FaceIdRecogniser.FACE_ID_VECTOR_DICT = pickle.load(open(FaceIdRecogniser.FACE_ID_VECTOR_FILE, "rb"))
+                FaceIdRecogniser.FACE_ID_VECTOR_DICT = pickle.load(open(self.get_file_path(FaceIdRecogniser.FACE_ID_VECTOR_FILE), "rb"))
                 rospy.loginfo("number of faces registered: %i" % len(FaceIdRecogniser.FACE_ID_VECTOR_DICT))
             else:
                 FaceIdRecogniser.FACE_ID_VECTOR_DICT = {}
 
+        # open models
+        self.dlib_face_recognizer = dlib.face_recognition_model_v1(self.get_file_path(FaceIdRecogniser.DLIB_RECOGNITION_MODEL_FILE))
+
+        self.is_initialised = True
+
     def persist_face_id(self):
         rospy.logdebug("Persisting Face ID data")
-        pickle.dump(FaceIdRecogniser.FACE_ID_VECTOR_DICT, open(FaceIdRecogniser.FACE_ID_VECTOR_FILE, "wb"),
+        pickle.dump(FaceIdRecogniser.FACE_ID_VECTOR_DICT, open(self.get_file_path(FaceIdRecogniser.FACE_ID_VECTOR_FILE), "wb"),
                     protocol=pickle.HIGHEST_PROTOCOL)
 
     def add_face_vector_to_id(self, identifier, face_vec):
@@ -85,10 +81,13 @@ class FaceIdRecogniser(object):
                 return identifier
 
         FaceIdRecogniser.FACE_ID_VECTOR_DICT[uuid.uuid4().hex] = {'vector': [face_vec], 'position': np.array(position),
-                                                 'timestamp': timestamp}
+                                                                  'timestamp': timestamp}
         self.persist_face_id()
 
     def recognize(self, image, roi, landmarks):
+        if not self.is_initialised:
+            rospy.logwarn("Please call initialise")
+
         d = dlib.rectangle(0, 0, image.shape[0], image.shape[1])
 
         dlib_shape = dlib.full_object_detection(d, landmarks)

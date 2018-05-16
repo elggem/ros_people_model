@@ -1,35 +1,34 @@
-import bz2
-import os
-import urllib
 from os.path import expanduser
 
 import cv2
 import dlib
 import rospy
+from recognisers.recogniser import Recogniser
 
 
-class FaceRecogniser(object):
-    DLIB_CNN_MODEL_FILE = expanduser("~/.dlib/mmod_cnn.dat")
+class FaceRecogniser(Recogniser):
+    DLIB_CNN_MODEL_FILE = "mmod_cnn.dat"
     DLIB_CNN_MODEL_URL = "http://dlib.net/files/mmod_human_face_detector.dat.bz2"
 
     def __init__(self):
+        Recogniser.__init__(self)
 
-        # Dlib detectors
-        self.dlib_face_detector = dlib.cnn_face_detection_model_v1(FaceRecogniser.DLIB_CNN_MODEL_FILE)
-        self.dlib_frontal_face_detector = dlib.get_frontal_face_detector()
+    def initialise(self, download=True):
+        # download models
+        if download:
+            self.download_model(FaceRecogniser.DLIB_CNN_MODEL_URL, FaceRecogniser.DLIB_CNN_MODEL_FILE)
 
-    def initialize_model(self):
-        url_opener = urllib.URLopener()
-        if not os.path.exists(expanduser("~/.dlib")):
-            os.makedirs(expanduser("~/.dlib"))
+        if self.wait_for_model(FaceRecogniser.DLIB_CNN_MODEL_FILE):
+            # Dlib detectors
+            self.dlib_face_detector = dlib.cnn_face_detection_model_v1(self.get_file_path(FaceRecogniser.DLIB_CNN_MODEL_FILE))
+            self.dlib_frontal_face_detector = dlib.get_frontal_face_detector()
 
-        if not os.path.isfile(FaceRecogniser.DLIB_CNN_MODEL_FILE):
-            rospy.loginfo("downloading %s" % FaceRecogniser.DLIB_CNN_MODEL_URL)
-            url_opener.retrieve(FaceRecogniser.DLIB_CNN_MODEL_URL, FaceRecogniser.DLIB_CNN_MODEL_FILE)
-            data = bz2.BZ2File(FaceRecogniser.DLIB_CNN_MODEL_FILE).read()  # get the decompressed data
-            open(FaceRecogniser.DLIB_CNN_MODEL_FILE, 'wb').write(data)  # write a uncompressed file
+            self.is_initialised = True
 
     def detect_faces(self, image, scale=1.0):
+        if not self.is_initialised:
+            rospy.logwarn("Please call initialise")
+
         if scale is not 1.0:
             image = cv2.resize(image, (0, 0), fx=scale, fy=scale)
 
@@ -43,6 +42,9 @@ class FaceRecogniser(object):
                                right=int(d.rect.right() / scale)) for d in cnn_dets]
 
     def detect_frontal_faces(self, image, scale=1.0):
+        if not self.is_initialised:
+            rospy.logwarn("Please call initialise")
+
         if scale is not 1.0:
             image = cv2.resize(image, (0, 0), fx=scale, fy=scale)
 

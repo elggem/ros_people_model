@@ -1,67 +1,44 @@
-import bz2
-import os.path
-import urllib
+from cv_bridge import CvBridge
 from os.path import expanduser
 
 import cv2
-import dlib
 import numpy as np
 import recognisers as rp
 import rospy
 # -------------------------- set gpu using tf ---------------------------
 import tensorflow as tf
-from cv_bridge import CvBridge
 # -------------------  start importing keras module ---------------------
 from keras.models import model_from_json
+from recognisers.recogniser import Recogniser
 
 graph = tf.get_default_graph()
 
 
-class EyeStateRecogniser(object):
-    EYESTATE_JSON_FILE = expanduser("~/.dlib/eyestate.json")
-    EYESTATE_MODEL_FILE = expanduser("~/.dlib/eyestate.h5")
+class EyeStateRecogniser(Recogniser):
+    EYESTATE_JSON_FILE = "model.json"
+    EYESTATE_MODEL_FILE = "model.h5"
 
     EYESTATE_JSON_URL = "https://raw.githubusercontent.com/mitiku1/EyeStateDetection/master/models/model.json"
     EYESTATE_MODEL_URL = "https://raw.githubusercontent.com/mitiku1/EyeStateDetection/master/models/model.h5"
-
-    DLIB_SHAPE_MODEL_FILE = expanduser("~/.dlib/shape_predictor.dat")
-    DLIB_SHAPE_MODEL_URL = "http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2"
 
     THRESH_HOLD = 0.5
     IMG_SIZE = (100, 100)
 
     def __init__(self):
-        self.models_initialized = False
+        Recogniser.__init__(self)
         self.bridge = CvBridge()
 
-    def initialize_models(self):
-        # download and unzip models
-        url_opener = urllib.URLopener()
-        if not os.path.exists(expanduser("~/.dlib")):
-            os.makedirs(expanduser("~/.dlib"))
+    def initialise(self, download=True):
+        # download models
+        self.download_model(EyeStateRecogniser.EYESTATE_JSON_URL, EyeStateRecogniser.EYESTATE_JSON_FILE)
+        self.download_model(EyeStateRecogniser.EYESTATE_MODEL_URL, EyeStateRecogniser.EYESTATE_MODEL_FILE)
 
-        if not os.path.isfile(EyeStateRecogniser.DLIB_SHAPE_MODEL_FILE):
-            rospy.loginfo("downloading %s" % EyeStateRecogniser.DLIB_SHAPE_MODEL_URL)
-            url_opener.retrieve(EyeStateRecogniser.DLIB_SHAPE_MODEL_URL, EyeStateRecogniser.DLIB_SHAPE_MODEL_FILE)
-            data = bz2.BZ2File(EyeStateRecogniser.DLIB_SHAPE_MODEL_FILE).read()  # get the decompressed data
-            open(EyeStateRecogniser.DLIB_SHAPE_MODEL_FILE, 'wb').write(data)  # write a uncompressed file
-
-        if not os.path.isfile(EyeStateRecogniser.EYESTATE_JSON_FILE):
-            rospy.loginfo("downloading %s" % EyeStateRecogniser.EYESTATE_JSON_URL)
-            url_opener.retrieve(EyeStateRecogniser.EYESTATE_JSON_URL, EyeStateRecogniser.EYESTATE_JSON_FILE)
-
-        if not os.path.isfile(EyeStateRecogniser.EYESTATE_MODEL_FILE):
-            rospy.loginfo("downloading %s" % EyeStateRecogniser.EYESTATE_MODEL_URL)
-            url_opener.retrieve(EyeStateRecogniser.EYESTATE_MODEL_URL, EyeStateRecogniser.EYESTATE_MODEL_FILE)
-
-        # initialize predictor and model
-        self.predictor = dlib.shape_predictor(EyeStateRecogniser.DLIB_SHAPE_MODEL_FILE)
-
-        with open(EyeStateRecogniser.EYESTATE_JSON_FILE) as model_file:
+        # open models
+        with open(self.get_file_path(EyeStateRecogniser.EYESTATE_JSON_FILE)) as model_file:
             self.model = model_from_json(model_file.read())
-            self.model.load_weights(EyeStateRecogniser.EYESTATE_MODEL_FILE)
+            self.model.load_weights(self.get_file_path(EyeStateRecogniser.EYESTATE_MODEL_FILE))
 
-        self.models_initialized = True
+        self.is_initialised = True
 
     @staticmethod
     def shape_to_dlib_points(shapes, original_shape, resize_shape):
@@ -90,8 +67,8 @@ class EyeStateRecogniser(object):
 
     # image needs to be format
     def recognize(self, image, dlib_shapes):
-        if not self.models_initialized:
-            rospy.logwarn("Please call initialize_models")
+        if not self.is_initialised:
+            rospy.logwarn("Please call initialise")
 
         with graph.as_default():
             face_img = rp.math.sanitize(image, EyeStateRecogniser.IMG_SIZE)

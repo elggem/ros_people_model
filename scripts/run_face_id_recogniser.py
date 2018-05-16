@@ -1,7 +1,8 @@
 #!/usr/bin/python
+from cv_bridge import CvBridge
+
 import recognisers as rp
 import rospy
-from cv_bridge import CvBridge
 from recognisers.face_id import FaceIdRecogniser
 from ros_people_model.srv import FaceId
 from ros_people_model.srv import FaceIdResponse
@@ -15,11 +16,11 @@ def handle_request(req):
 
 
 if __name__ == "__main__":
+    rospy.init_node('face_id_recogniser_server')
+
     bridge = CvBridge()
     recogniser = FaceIdRecogniser()
-    recogniser.initialize_models()
-
-    rospy.init_node('face_id_recogniser_server')
+    recogniser.initialise()
     srv = rospy.Service('face_id_recogniser', FaceId, handle_request)
 
     rospy.spin()

@@ -1,12 +1,11 @@
 #!/usr/bin/python
 
+from cv_bridge import CvBridge
 from multiprocessing.pool import ThreadPool
-from os.path import expanduser
 from threading import Lock
 
 import numpy as np
 import rospy
-from cv_bridge import CvBridge
 from dynamic_reconfigure.server import Server
 from recognisers.face import FaceRecogniser
 from ros_people_model.cfg import RosPeopleModelConfig
@@ -17,8 +16,6 @@ from sensor_msgs.msg import RegionOfInterest
 
 
 class FrontalFaceDetector(object):
-    DLIB_CNN_MODEL_FILE = expanduser("~/.dlib/mmod_cnn.dat")
-    DLIB_CNN_MODEL_URL = "http://dlib.net/files/mmod_human_face_detector.dat.bz2"
 
     def __init__(self, recogniser):
         self.recogniser = recogniser
@@ -76,13 +73,14 @@ class FrontalFaceDetector(object):
 
                                 if self.cfg.run_face_id:
                                     face_id_result = self.srv_pool.apply_async(self.srv_face_id, (
-                                    ftr.crop, ftr.roi, ftr.shapes))
+                                        ftr.crop, ftr.roi, ftr.shapes))
 
                                 if self.cfg.run_face_emotions:
                                     emotion_result = self.srv_pool.apply_async(self.srv_emotion, (ftr.crop, ftr.shapes))
 
                                 if self.cfg.run_eye_state:
-                                    eye_state_result = self.srv_pool.apply_async(self.srv_eye_state, (ftr.crop, ftr.shapes))
+                                    eye_state_result = self.srv_pool.apply_async(self.srv_eye_state,
+                                                                                 (ftr.crop, ftr.shapes))
 
                                 if self.cfg.run_face_id:
                                     ftr.face_id = face_id_result.get().face_id
@@ -101,8 +99,19 @@ class FrontalFaceDetector(object):
 
 
 if __name__ == "__main__":
-    rospy.init_node('vis_dlib_frontal')
+    node_name = 'face_detector_frontal'
+    rospy.init_node(node_name)
+
     recogniser = FaceRecogniser()
-    recogniser.initialize_model()
+    recogniser.initialise(download=False)
+
+    # wait for services that the frontal face detector depends upon
+    services = ['face_landmarks_recogniser', 'emotion_recogniser', 'eye_state_recogniser', 'face_id_recogniser']
+    for service_name in services:
+        rospy.loginfo("{} waiting for service: {}".format(node_name, service_name))
+        rospy.wait_for_service(service_name, timeout=None)
+
     node = FrontalFaceDetector(recogniser)
+
+    rospy.loginfo("{} started".format(node_name))
     rospy.spin()
