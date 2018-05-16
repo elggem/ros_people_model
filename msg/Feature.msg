@@ -12,4 +12,4 @@ sensor_msgs/RegionOfInterest roi
 geometry_msgs/Point[]     shapes
 string                    face_id
 float32[]                 emotions
-float32[]                 eyes_closed
+float32[]                 eye_states

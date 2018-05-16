@@ -155,7 +155,7 @@ install(PROGRAMS
    scripts/model_people.py
    scripts/mirroring.py
    scripts/model_world.py
-   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}/scripts
 )
 
 ## Mark executables and/or libraries for installation
@@ -180,7 +180,7 @@ install(FILES
    launch/remote_mirroring.launch
    launch/webcam_dual.launch
    launch/webcam_single.launch
-   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
 )
 
 #############
