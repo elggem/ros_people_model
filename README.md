@@ -28,7 +28,7 @@ sensor_msgs/RegionOfInterest roi
 geometry_msgs/Point[]     shapes
 string                    face_id
 float32[]                 emotions
-float32[]                 eyes_closed
+float32[]                 eye_states
 ```
 
 Probabilistic output at `/faces` outputs the following Feature.msg message. Note the added information of position and certainty added in this stage. Also note that all attributes can be empty in case of detection failure.
@@ -45,7 +45,7 @@ float32                   certainty
 geometry_msgs/Point[]     shapes
 string                    face_id
 float32[]                 emotions
-float32[]                 eyes_closed
+float32[]                 eye_states
 ```
 
 ## Dependencies

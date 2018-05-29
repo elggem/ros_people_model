@@ -82,7 +82,7 @@ def debug_draw(self):
                                 cv2.FONT_HERSHEY_DUPLEX, 0.55, cnn_clr)
                     p += 1
 
-            for p, eye in enumerate(ftr.eyes_closed):
+            for p, eye in enumerate(ftr.eye_states):
                 cv2.rectangle(frame, (d.x_offset + (p * 20), d.y_offset + (int(eye * 80))),
                               (d.x_offset + (p * 20) + 20, d.y_offset), shp_clr, -1)
 

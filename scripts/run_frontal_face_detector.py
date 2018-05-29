@@ -89,7 +89,7 @@ class FrontalFaceDetector(object):
                                     ftr.emotions = emotion_result.get().emotions
 
                                 if self.cfg.run_eye_state:
-                                    ftr.eyes_closed = eye_state_result.get().eyes_closed
+                                    ftr.eye_states = eye_state_result.get().eye_states
                             except Exception as e:
                                 rospy.logerr("Exception getting features: {0}".format(e))
 
