@@ -1,0 +1,7 @@
+topic_name: '/vis_dlib_cnn'
+scale: 0.3
+fps: 10.0
+run_face_landmarks: true
+run_face_id: true
+run_face_emotions: true
+run_eye_state: true
