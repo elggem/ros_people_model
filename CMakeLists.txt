@@ -183,13 +183,6 @@ install(FILES
    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
 )
 
-install(FILES
-   config/face_detector_params.yaml
-   config/frontal_face_detector_params.yaml
-   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config
-)
-
-
 #############
 ## Testing ##
 #############
