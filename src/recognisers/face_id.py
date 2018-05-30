@@ -90,7 +90,7 @@ class FaceIdRecogniser(Recogniser):
 
         d = dlib.rectangle(0, 0, image.shape[0], image.shape[1])
 
-        dlib_shape = dlib.full_object_detection(d, landmarks)
+        dlib_shape = dlib.full_object_detection(d, list(landmarks))
 
         # Get the face descriptor
         face_descriptor = self.dlib_face_recognizer.compute_face_descriptor(image, dlib_shape)
