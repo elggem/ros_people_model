@@ -1,16 +1,43 @@
 <launch>
+    <arg name="face_detector_topic" default="/camera/image_raw"/>
+    <arg name="face_detector_scale" default="0.5"/>
+    <arg name="face_detector_fps" default="5.0"/>
+    <arg name="face_detector_padding" default="0.1"/>
+
+    <arg name="frontal_face_detector_topic" default="/vis_dlib_cnn"/>
+    <arg name="frontal_face_detector_scale" default="0.3"/>
+    <arg name="frontal_face_detector_fps" default="10.0"/>
+
+    <arg name="run_face_landmarks" default="true"/>
+    <arg name="run_face_id" default="true"/>
+    <arg name="run_face_emotions" default="true"/>
+    <arg name="run_eye_state" default="true"/>
+
     <node name="face_detector" pkg="ros_people_model" type="run_face_detector.py" output="screen">
-        <rosparam file="$(find ros_people_model)/config/face_detector_params.yaml" command="load"/>
+        <param name="topic_name" value="$(arg face_detector_topic)"/>
+        <param name="scale" value="$(arg face_detector_scale)"/>
+        <param name="fps" value="$(arg face_detector_fps)"/>
+        <param name="padding" value="$(arg face_detector_padding)"/>
     </node>
 
     <node name="frontal_face_detector" pkg="ros_people_model" type="run_frontal_face_detector.py" output="screen">
         <rosparam file="$(find ros_people_model)/config/frontal_face_detector_params.yaml" command="load"/>
+
+        <param name="topic_name" value="$(arg frontal_face_detector_topic)"/>
+        <param name="scale" value="$(arg frontal_face_detector_scale)"/>
+        <param name="fps" value="$(arg frontal_face_detector_fps)"/>
+
+        <param name="run_face_landmarks" value="$(arg run_face_landmarks)"/>
+        <param name="run_face_id" value="$(arg run_face_id)"/>
+        <param name="run_face_emotions" value="$(arg run_face_emotions)"/>
+        <param name="run_eye_state" value="$(arg run_eye_state)"/>
     </node>
 
     <node name="emotion_recogniser" pkg="ros_people_model" type="run_emotion_recogniser.py" output="screen"/>
     <node name="eye_state_recogniser" pkg="ros_people_model" type="run_eye_state_recogniser.py" output="screen"/>
     <node name="face_id_recogniser" pkg="ros_people_model" type="run_face_id_recogniser.py" output="screen"/>
-    <node name="face_landmarks_recogniser" pkg="ros_people_model" type="run_face_landmarks_recogniser.py" output="screen"/>
+    <node name="face_landmarks_recogniser" pkg="ros_people_model" type="run_face_landmarks_recogniser.py"
+          output="screen"/>
 
     <node name="model_people" pkg="ros_people_model" type="model_people.py" output="screen"/>
 </launch>
