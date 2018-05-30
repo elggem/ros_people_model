@@ -21,8 +21,6 @@
     </node>
 
     <node name="frontal_face_detector" pkg="ros_people_model" type="run_frontal_face_detector.py" output="screen">
-        <rosparam file="$(find ros_people_model)/config/frontal_face_detector_params.yaml" command="load"/>
-
         <param name="topic_name" value="$(arg frontal_face_detector_topic)"/>
         <param name="scale" value="$(arg frontal_face_detector_scale)"/>
         <param name="fps" value="$(arg frontal_face_detector_fps)"/>
