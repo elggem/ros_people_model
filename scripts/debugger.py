@@ -107,15 +107,18 @@ def frontal_callback(data):
 
 
 if __name__ == "__main__":
-    rospy.init_node('debug_output', anonymous=True)
-    bridge = CvBridge()
+    try:
+        rospy.init_node('debug_output', anonymous=True)
+        bridge = CvBridge()
 
-    # Subscribers
-    rospy.Subscriber("/camera/image_raw", Image, image_callback)
-    rospy.Subscriber("/vis_dlib_cnn", Features, cnn_callback)
-    rospy.Subscriber("/vis_dlib_frontal", Features, frontal_callback)
+        # Subscribers
+        rospy.Subscriber("/camera/image_raw", Image, image_callback)
+        rospy.Subscriber("/vis_dlib_cnn", Features, cnn_callback)
+        rospy.Subscriber("/vis_dlib_frontal", Features, frontal_callback)
 
-    # Launch drawing timer
-    rospy.Timer(rospy.Duration(DRAW_FRAMERATE), debug_draw)
+        # Launch drawing timer
+        rospy.Timer(rospy.Duration(DRAW_FRAMERATE), debug_draw)
 
-    rospy.spin()
+        rospy.spin()
+    except rospy.ROSInterruptException:
+        pass
