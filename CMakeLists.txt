@@ -145,15 +145,15 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 install(PROGRAMS
-   scripts/run_debugger.py
-   scripts/run_emotion_recogniser.py
-   scripts/run_eye_state_recogniser.py
-   scripts/run_face_detector.py
-   scripts/run_frontal_face_detector.py
-   scripts/run_face_id_recogniser.py
-   scripts/run_face_landmarks_recogniser.py
-   scripts/model_people.py
+   scripts/debugger.py
+   scripts/emotion_recogniser.py
+   scripts/eye_state_recogniser.py
+   scripts/face_detector.py
+   scripts/face_id_recogniser.py
+   scripts/face_landmarks_recogniser.py
+   scripts/frontal_face_detector.py
    scripts/mirroring.py
+   scripts/model_people.py
    scripts/model_world.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}/scripts
 )
@@ -174,12 +174,9 @@ install(PROGRAMS
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 install(FILES
-   launch/devhead.launch
-   launch/launch_all.launch
+   launch/mirroring.launch
+   launch/models.launch
    launch/perception.launch
-   launch/remote_mirroring.launch
-   launch/webcam_dual.launch
-   launch/webcam_single.launch
    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
 )
 
