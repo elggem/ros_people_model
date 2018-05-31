@@ -1,10 +1,10 @@
-import rospy
+from threading import Lock
 
+import models
+import rospy
 from ros_people_model.msg import Face
 from ros_people_model.msg import Faces
 from ros_people_model.msg import Features
-from threading import Lock
-import models
 
 
 class PeopleModel(object):
@@ -71,8 +71,11 @@ class PeopleModel(object):
                 face.certainty *= 0.8
                 if face.certainty < 0.001:
                     to_remove.append(i)
-            for rem in to_remove:
-                del self.faces[rem]
+
+            # we must delete items in reverse order otherwise in subsequent iterations we might try to delete indices
+            # that don't exist in the list anymore
+            for i in sorted(to_remove, reverse=True):
+                del self.faces[i]
 
     def cnn_features_perceived_cb(self, features):
         with self.faces_lock:
