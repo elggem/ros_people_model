@@ -87,7 +87,7 @@ class PeopleModel(object):
             for feature in features.features:
                 self.update_model_from_feature(feature)
 
-    def publish_faces_cb(self):
+    def publish_faces_cb(self, event):
         with self.faces_lock:
             msg = Faces()
             msg.faces = self.faces
