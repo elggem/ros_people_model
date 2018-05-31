@@ -1,0 +1,7 @@
+<launch>
+    <arg name="perception_fps" default="5.0"/>
+
+    <node name="model_people" pkg="ros_people_model" type="model_people.py" output="screen">
+        <param name="fps" value="$(arg perception_fps)"/>
+    </node>
+</launch>

@@ -1,0 +1,7 @@
+<launch>
+    <arg name="perception_fps" default="5.0"/>
+
+    <node name="mirroring" pkg="ros_people_model" type="mirroring.py" output="screen">
+        <param name="fps" value="$(arg perception_fps)"/>
+    </node>
+</launch>
