@@ -16,11 +16,15 @@ def handle_request(req):
 
 
 if __name__ == "__main__":
-    rospy.init_node('face_id_recogniser_server')
 
-    bridge = CvBridge()
-    recogniser = FaceIdRecogniser()
-    recogniser.initialise()
-    srv = rospy.Service('face_id_recogniser', FaceId, handle_request)
+    try:
+        rospy.init_node('face_id_recogniser_server')
 
-    rospy.spin()
+        bridge = CvBridge()
+        recogniser = FaceIdRecogniser()
+        recogniser.initialise()
+        srv = rospy.Service('face_id_recogniser', FaceId, handle_request)
+
+        rospy.spin()
+    except rospy.ROSInterruptException:
+        pass

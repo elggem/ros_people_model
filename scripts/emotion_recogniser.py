@@ -21,11 +21,16 @@ def handle_request(req):
 
 
 if __name__ == "__main__":
-    rospy.init_node('emotion_recogniser_server')
 
-    bridge = CvBridge()
-    recogniser = EmotionRecogniser()
-    recogniser.initialise()
-    srv = rospy.Service('emotion_recogniser', Emotion, handle_request)
+    try:
+        rospy.init_node('emotion_recogniser_server')
 
-    rospy.spin()
+        bridge = CvBridge()
+        recogniser = EmotionRecogniser()
+        recogniser.initialise()
+        srv = rospy.Service('emotion_recogniser', Emotion, handle_request)
+
+        rospy.spin()
+
+    except rospy.ROSInterruptException:
+        pass

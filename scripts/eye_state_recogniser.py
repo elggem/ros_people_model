@@ -21,11 +21,15 @@ def handle_request(req):
 
 
 if __name__ == "__main__":
-    rospy.init_node('eye_state_recogniser_server')
 
-    bridge = CvBridge()
-    recogniser = EyeStateRecogniser()
-    recogniser.initialise()
-    srv = rospy.Service('eye_state_recogniser', EyeState, handle_request)
+    try:
+        rospy.init_node('eye_state_recogniser_server')
 
-    rospy.spin()
+        bridge = CvBridge()
+        recogniser = EyeStateRecogniser()
+        recogniser.initialise()
+        srv = rospy.Service('eye_state_recogniser', EyeState, handle_request)
+
+        rospy.spin()
+    except rospy.ROSInterruptException:
+        pass

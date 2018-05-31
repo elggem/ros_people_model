@@ -99,19 +99,23 @@ class FrontalFaceDetector(object):
 
 
 if __name__ == "__main__":
-    node_name = 'face_detector_frontal'
-    rospy.init_node(node_name)
 
-    recogniser = FaceRecogniser()
-    recogniser.initialise(download=False)
+    try:
+        node_name = 'face_detector_frontal'
+        rospy.init_node(node_name)
 
-    # wait for services that the frontal face detector depends upon
-    services = ['face_landmarks_recogniser', 'emotion_recogniser', 'eye_state_recogniser', 'face_id_recogniser']
-    for service_name in services:
-        rospy.loginfo("{} waiting for service: {}".format(node_name, service_name))
-        rospy.wait_for_service(service_name, timeout=None)
+        recogniser = FaceRecogniser()
+        recogniser.initialise(download=False)
 
-    node = FrontalFaceDetector(recogniser)
+        # wait for services that the frontal face detector depends upon
+        services = ['face_landmarks_recogniser', 'emotion_recogniser', 'eye_state_recogniser', 'face_id_recogniser']
+        for service_name in services:
+            rospy.loginfo("{} waiting for service: {}".format(node_name, service_name))
+            rospy.wait_for_service(service_name, timeout=None)
 
-    rospy.loginfo("{} started".format(node_name))
-    rospy.spin()
+        node = FrontalFaceDetector(recogniser)
+
+        rospy.loginfo("{} started".format(node_name))
+        rospy.spin()
+    except rospy.ROSInterruptException:
+        pass

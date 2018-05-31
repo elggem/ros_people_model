@@ -64,9 +64,9 @@ class FaceDetectorNode(object):
 
 
 if __name__ == "__main__":
-    rospy.init_node('face_detector')
 
     try:
+        rospy.init_node('face_detector')
         recogniser = FaceRecogniser()
         recogniser.initialise()
         node = FaceDetectorNode(recogniser)
