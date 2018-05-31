@@ -1,5 +1,3 @@
-from os.path import expanduser
-
 import cv2
 import dlib
 import rospy

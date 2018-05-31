@@ -1,5 +1,4 @@
 from cv_bridge import CvBridge
-from os.path import expanduser
 
 import dlib
 import rospy
