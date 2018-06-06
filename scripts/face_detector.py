@@ -37,6 +37,7 @@ class FaceDetectorNode(object):
         self.depth_image = None
 
         # pubs and subs
+        self.face_debug = rospy.Publisher("/face_debug", Image, queue_size=10)
         self.faces_pub = rospy.Publisher('/vis_dlib_cnn', Features, queue_size=10)
         self.img_sub = rospy.Subscriber(rospy.get_param('~topic_name', '/camera/image_raw'), Image, self.image_cb)
         self.depth_sub = rospy.Subscriber(
@@ -77,6 +78,7 @@ class FaceDetectorNode(object):
             features = Features()
             features.features = []
             closest_face = None
+            closest_face_img = None
             max_distance = float("inf")
 
             for k, d in enumerate(cnn_results):
@@ -104,9 +106,11 @@ class FaceDetectorNode(object):
                 yc = roi.y_offset + roi.width / 2.0
                 x, y, z = self.get_world_coordinates(xw, self.image.shape[1], self.image.shape[0], xc, yc)
                 distance = math.sqrt(x * x + y * y + z * z)
-
+                # print(distance)
                 if distance < max_distance:
+                    # closest_face_img = feature.crop
                     closest_face = x, y, z
+                    max_distance = distance
 
                 features.features.append(feature)
             self.lock.release()
@@ -114,6 +118,8 @@ class FaceDetectorNode(object):
 
             if closest_face is not None:
                 x, y, z = closest_face
+                # self.face_debug.publish(closest_face_img)
+                # print(x, y, z)
                 self.send_face_transform(x, y, z)
 
 
