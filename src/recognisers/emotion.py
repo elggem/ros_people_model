@@ -18,8 +18,8 @@ class EmotionRecogniser(Recogniser):
     EMOPY_AVA_JSON_FILE = "ava.json"
     EMOPY_AVA_MODEL_FILE = "ava.h5"
 
-    EMOPY_AVA_JSON_URL = "https://raw.githubusercontent.com/mitiku1/Emopy-Models/master/models/ava.json"
-    EMOPY_AVA_MODEL_URL = "https://raw.githubusercontent.com/mitiku1/Emopy-Models/master/models/ava.h5"
+    EMOPY_AVA_JSON_URL = "https://raw.githubusercontent.com/elggem/Emopy-Models/add-license-1/models/ava.json"
+    EMOPY_AVA_MODEL_URL = "https://raw.githubusercontent.com/elggem/Emopy-Models/add-license-1/models/ava.h5"
 
     EMOTION_STATES = {
         0: "neutral",
