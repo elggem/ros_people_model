@@ -96,7 +96,7 @@ class Mirroring:
 
                     left = eye_states[0]
                     right = eye_states[1]
-                    print("eye state: ", left, right)
+                    # print("eye state: ", left, right)
                     diff = time.time() - self.last_blink_time
 
                     if (left < Mirroring.BLINK_THRESH or right < Mirroring.BLINK_THRESH) and diff > Mirroring.BLINK_THRESH_TIME:
