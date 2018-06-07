@@ -102,13 +102,12 @@ class FaceDetectorNode(object):
                 else:
                     xw = 2.0
 
-                xc = roi.x_offset + roi.height / 2.0
-                yc = roi.y_offset + roi.width / 2.0
+                xc = roi.x_offset + roi.width / 2.0
+                yc = roi.y_offset + roi.height / 2.5
                 x, y, z = self.get_world_coordinates(xw, self.image.shape[1], self.image.shape[0], xc, yc)
                 distance = math.sqrt(x * x + y * y + z * z)
-                # print(distance)
+
                 if distance < max_distance:
-                    # closest_face_img = feature.crop
                     closest_face = x, y, z
                     max_distance = distance
 
@@ -118,6 +117,7 @@ class FaceDetectorNode(object):
 
             if closest_face is not None:
                 x, y, z = closest_face
+                self.last_face_pos = closest_face
                 # self.face_debug.publish(closest_face_img)
                 # print(x, y, z)
                 self.send_face_transform(x, y, z)
