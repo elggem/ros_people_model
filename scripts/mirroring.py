@@ -11,7 +11,8 @@ import random
 class Mirroring:
     PERSON_EMOTIONS = ['anger', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
     ROBOT_EMOTIONS = ['angry', 'disgust', 'fear', 'happy.001', 'sad', 'surprised', 'none']
-    WEIGHTS = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.0]
+    MULTIPLIER = [1.05, 1.1, 1.1, 1.07, 1.25, 1.8, 1.0]
+    WEIGHTS =    [0.5, 0.5, 0.5, 0.05, 0.5, 0.5, 0.0]
     THRESHOLD = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
     DECAY = 0.08
     BLINK_THRESH = 0.35
@@ -36,7 +37,7 @@ class Mirroring:
         rospy.Timer(rospy.Duration(1.0 / self.fps), self.update_robot_emotions_cb)
 
     def get_emotion_value(self, emotype):
-        return self.biggest_face.emotions[Mirroring.PERSON_EMOTIONS.index(emotype)]
+        return self.biggest_face.emotions[Mirroring.PERSON_EMOTIONS.index(emotype)] * Mirroring.MULTIPLIER[Mirroring.PERSON_EMOTIONS.index(emotype)]
 
     def update_blink_state(self, value):
         try:
