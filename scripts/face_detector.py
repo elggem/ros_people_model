@@ -24,7 +24,7 @@ class FaceDetectorNode(object):
         self.cnn_frate = 1.0 / rospy.get_param('~fps', 5.0)
 
         # camera settings
-        self.aspect = 1.0
+        self.aspect = 1.2
         self.fovy = 1.0
         self.rs_depth_scale = 0.001
 
