@@ -10,12 +10,12 @@ import random
 
 class Mirroring:
     PERSON_EMOTIONS = ['anger', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
-    ROBOT_EMOTIONS = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprised', 'none']
+    ROBOT_EMOTIONS = ['angry', 'disgust', 'fear', 'happy.001', 'sad', 'surprised', 'none']
     WEIGHTS = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.0]
     THRESHOLD = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
     DECAY = 0.08
     BLINK_THRESH = 0.35
-    BLINK_THRESH_TIME = 1.5
+    BLINK_THRESH_TIME = 3.0
 
     def __init__(self):
         self.states_lock = Lock()
