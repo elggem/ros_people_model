@@ -8,7 +8,7 @@ import rospy
 # -------------------------- set gpu using tf ---------------------------
 import tensorflow as tf
 # -------------------  start importing keras module ---------------------
-from keras.models import model_from_json
+from tensorflow.keras.models import model_from_json
 from recognisers.recogniser import Recogniser
 
 graph = tf.get_default_graph()

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from cv_bridge import CvBridge
 from threading import Lock
 

@@ -1,7 +1,7 @@
 import abc
 import bz2
 import os
-import urllib
+import urllib.request
 from os.path import expanduser
 import time
 
@@ -33,8 +33,8 @@ class Recogniser(object):
 
         if not os.path.isfile(url_file_path):
             rospy.loginfo("downloading: {}".format(url))
-            url_opener = urllib.URLopener()
-            url_opener.retrieve(url, url_file_path)
+            urllib.request.urlretrieve(url, url_file_path)
+            #url_opener.retrieve(url, url_file_path)
             rospy.loginfo("finished downloading: {}".format(url))
 
         if url_file_path.endswith(".bz2") and not os.path.isfile(final_file_path):

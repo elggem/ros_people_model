@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import rospy
 from blender_api_msgs.msg import EmotionState, SetGesture
 from blender_api_msgs.srv import SetParam

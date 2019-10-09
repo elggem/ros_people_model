@@ -177,6 +177,7 @@ install(FILES
    launch/mirroring.launch
    launch/models.launch
    launch/perception.launch
+   launch/roman.launch
    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
 )
 

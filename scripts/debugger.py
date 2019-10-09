@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 import cv2
 import rospy
 from cv_bridge import CvBridge
@@ -74,7 +74,7 @@ def debug_draw(self):
                     emo_dict[EMOTIONS[emotype]] = ftr.emotions[i]
 
                 p = 0
-                for emotype, emo in sorted(emo_dict.iteritems(), key=lambda (k, v): (v, k)):
+                for emotype, emo in sorted(emo_dict.iteritems(), key=lambda kv: (-kv[1], kv[0])):
                     cv2.rectangle(frame, (d.x_offset, d.y_offset + d.height - 7 * 20 + (p * 20)),
                                   (d.x_offset + (int(emo * 80)), d.y_offset + d.height - 7 * 20 + (p * 20) + 20),
                                   txt_clr, -1)

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """
 http://docs.ros.org/api/image_geometry/html/python/
