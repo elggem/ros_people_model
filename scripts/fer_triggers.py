@@ -10,7 +10,7 @@ import random
 class FERTriggers:
     PERSON_EMOTIONS = ['anger', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
     MULTIPLIER = [1.05, 1.1, 1.1, 1.07, 1.25, 1.8, 1.0]
-    WEIGHTS =    [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0]
+    WEIGHTS =    [0.5, 0.5, 0.5, 0.95, 0.5, 0.95, 0.0]
     THRESHOLD = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
     DECAY = 0.08
     BLINK_THRESH = 0.35
@@ -41,6 +41,7 @@ class FERTriggers:
         msg = ChatMessage()
         msg.lang = "en-US"
         msg.utterance = "Event.emotion."+expression_name
+        msg.source = "ros_people_model"
         print("publishing " + msg.utterance)
         self.chat_trigger_pub.publish(msg)
 
@@ -90,7 +91,7 @@ class FERTriggers:
 
     def faces_perceived_cb(self, faces):
         with self.states_lock:
-            self.print_emotion_state()
+            #self.print_emotion_state()
             self.evaluate_triggers()
 
             if len(faces.faces) > 0:
