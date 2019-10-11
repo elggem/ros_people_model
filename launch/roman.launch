@@ -1,5 +1,5 @@
 <launch>
-
+<!--
   <node name="camera" pkg="usb_cam" type="usb_cam_node" output="screen" >
     <param name="video_device" value="/dev/video0" />
     <param name="image_width" value="1280" />
@@ -8,10 +8,10 @@
     <param name="camera_frame_id" value="camera" />
   </node>
 
+-->
 
 
-
-
+    <node name="republish" type="republish" pkg="image_transport" output="screen" args="compressed in:=/sophia17/perception/realsense/camera/color/image_raw raw out:=/camera/image_raw" />
 
     <arg name="perception_fps" default="5.0"/>
 
