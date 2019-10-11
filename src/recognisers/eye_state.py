@@ -8,9 +8,13 @@ import rospy
 # -------------------------- set gpu using tf ---------------------------
 import tensorflow as tf
 # -------------------  start importing keras module ---------------------
-from keras.models import model_from_json
+from tensorflow.keras.models import model_from_json
+from tensorflow.python.keras.backend import set_session
 from recognisers.recogniser import Recogniser
 
+config = tf.ConfigProto()
+config.gpu_options.allow_growth=True
+sess = tf.Session(config=config)
 graph = tf.get_default_graph()
 
 
@@ -34,6 +38,7 @@ class EyeStateRecogniser(Recogniser):
         self.download_model(EyeStateRecogniser.EYESTATE_MODEL_URL, EyeStateRecogniser.EYESTATE_MODEL_FILE)
 
         # open models
+        set_session(sess)
         with open(self.get_file_path(EyeStateRecogniser.EYESTATE_JSON_FILE)) as model_file:
             self.model = model_from_json(model_file.read())
             self.model.load_weights(self.get_file_path(EyeStateRecogniser.EYESTATE_MODEL_FILE))
@@ -71,6 +76,7 @@ class EyeStateRecogniser(Recogniser):
             rospy.logwarn("Please call initialise")
 
         with graph.as_default():
+            set_session(sess)
             face_img = rp.math.sanitize(image, EyeStateRecogniser.IMG_SIZE)
 
             dlib_points = EyeStateRecogniser.shape_to_dlib_points(dlib_shapes, image.shape, EyeStateRecogniser.IMG_SIZE)

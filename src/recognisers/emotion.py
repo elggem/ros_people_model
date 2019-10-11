@@ -8,9 +8,13 @@ import rospy
 # -------------------------- set gpu using tf ---------------------------
 import tensorflow as tf
 # -------------------  start importing keras module ---------------------
-from keras.models import model_from_json
+from tensorflow.keras.models import model_from_json
+from tensorflow.python.keras.backend import set_session
 from recognisers.recogniser import Recogniser
 
+config = tf.ConfigProto()
+config.gpu_options.allow_growth=True
+sess = tf.Session(config=config)
 graph = tf.get_default_graph()
 
 
@@ -18,8 +22,8 @@ class EmotionRecogniser(Recogniser):
     EMOPY_AVA_JSON_FILE = "ava.json"
     EMOPY_AVA_MODEL_FILE = "ava.h5"
 
-    EMOPY_AVA_JSON_URL = "https://raw.githubusercontent.com/elggem/Emopy-Models/add-license-1/models/ava.json"
-    EMOPY_AVA_MODEL_URL = "https://raw.githubusercontent.com/elggem/Emopy-Models/add-license-1/models/ava.h5"
+    EMOPY_AVA_JSON_URL = "https://raw.githubusercontent.com/mitiku1/Emopy-Models/add-license-1/models/ava.json"
+    EMOPY_AVA_MODEL_URL = "https://raw.githubusercontent.com/mitiku1/Emopy-Models/add-license-1/models/ava.h5"
 
     EMOTION_STATES = {
         0: "neutral",
@@ -53,6 +57,7 @@ class EmotionRecogniser(Recogniser):
         self.download_model(EmotionRecogniser.EMOPY_AVA_MODEL_URL, EmotionRecogniser.EMOPY_AVA_MODEL_FILE)
 
         # open models
+        set_session(sess)
         with open(self.get_file_path(EmotionRecogniser.EMOPY_AVA_JSON_FILE)) as model_file:
             self.model = model_from_json(model_file.read())
             self.model.load_weights(self.get_file_path(EmotionRecogniser.EMOPY_AVA_MODEL_FILE))
@@ -81,6 +86,7 @@ class EmotionRecogniser(Recogniser):
             rospy.logwarn("Please call initialise")
 
         with graph.as_default():
+            set_session(sess)
             face = rp.math.sanitize(image, EmotionRecogniser.IMG_SIZE)
             face = face.reshape(-1, 48, 48, 1)
             if model_type != "ava-ii":
