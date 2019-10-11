@@ -18,6 +18,7 @@ class FERTriggers:
 
     # TRIGGER THRESHOLDS. EVERYTHING ABOVE TRIGGERS
     TRIGGER = [0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9]
+    TRIGGER_THRESH_TIME = 2.0
 
     def __init__(self):
         self.states_lock = Lock()
@@ -26,6 +27,8 @@ class FERTriggers:
         self.last_blink_time = time.time()
         self.blink_state = True
         self.blink_animations = ['blink', 'blink-sleepy', 'blink-relaxed']
+
+        self.last_emotion_trigger_time = time.time()
 
         self.fps = rospy.get_param('~fps', 20)
 
@@ -57,25 +60,28 @@ class FERTriggers:
     def update_emotion_state(face):
         if len(face.emotions) > 1:
             try:
-                for i, emo in enumerate(Mirroring.PERSON_EMOTIONS):
-                    if self.get_emotion_value(face, emo) > Mirroring.THRESHOLD[i]:
-                        self.states[i] = (self.states[i] * (1.0 - Mirroring.WEIGHTS[i])) + (
-                                    Mirroring.WEIGHTS[i] * self.get_emotion_value(face, emo))
+                for i, emo in enumerate(FERTriggers.PERSON_EMOTIONS):
+                    if self.get_emotion_value(face, emo) > FERTriggers.THRESHOLD[i]:
+                        self.states[i] = (self.states[i] * (1.0 - FERTriggers.WEIGHTS[i])) + (
+                                    FERTriggers.WEIGHTS[i] * self.get_emotion_value(face, emo))
                     else:
-                        self.states[i] = self.states[i] * (1.0 - Mirroring.DECAY)
+                        self.states[i] = self.states[i] * (1.0 - FERTriggers.DECAY)
             except:
                 pass
         else:
-            for i, emo in enumerate(Mirroring.PERSON_EMOTIONS):
-                self.states[i] = self.states[i] * (1.0 - Mirroring.DECAY)
+            for i, emo in enumerate(FERTriggers.PERSON_EMOTIONS):
+                self.states[i] = self.states[i] * (1.0 - FERTriggers.DECAY)
 
     def get_emotion_value(self, face, emotype):
-        return face.emotions[Mirroring.PERSON_EMOTIONS.index(emotype)] * Mirroring.MULTIPLIER[Mirroring.PERSON_EMOTIONS.index(emotype)]
+        return face.emotions[FERTriggers.PERSON_EMOTIONS.index(emotype)] * FERTriggers.MULTIPLIER[FERTriggers.PERSON_EMOTIONS.index(emotype)]
 
     def evaluate_triggers(self, face):
-        for i, emo in enumerate(Mirroring.PERSON_EMOTIONS):
-            if self.get_emotion_value(face, emo) > Mirroring.TRIGGER[i]:
-                self.triggered_expression(emo)
+        for i, emo in enumerate(FERTriggers.PERSON_EMOTIONS):
+            if self.get_emotion_value(face, emo) > FERTriggers.TRIGGER[i]:
+                diff = time.time() - self.last_emotion_trigger_time
+                if diff > FERTriggers.TRIGGER_THRESH_TIME:
+                    self.last_emotion_trigger_time = time.time()
+                    self.triggered_expression(emo)
 
     def faces_perceived_cb(self, faces):
         with self.states_lock:
@@ -97,12 +103,12 @@ class FERTriggers:
                     # print("eye state: ", left, right)
                     diff = time.time() - self.last_blink_time
 
-                    if (left < Mirroring.BLINK_THRESH or right < Mirroring.BLINK_THRESH) and diff > Mirroring.BLINK_THRESH_TIME:
+                    if (left < FERTriggers.BLINK_THRESH or right < FERTriggers.BLINK_THRESH) and diff > FERTriggers.BLINK_THRESH_TIME:
                         self.triggered_blink()
                         self.last_blink_time = time.time()
             else:
-                for i, emo in enumerate(Mirroring.PERSON_EMOTIONS):
-                    self.states[i] = self.states[i] * (1.0 - Mirroring.DECAY)
+                for i, emo in enumerate(FERTriggers.PERSON_EMOTIONS):
+                    self.states[i] = self.states[i] * (1.0 - FERTriggers.DECAY)
 
 
 if __name__ == "__main__":
