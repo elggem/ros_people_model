@@ -30,11 +30,17 @@ class FERTriggers:
 
         self.last_emotion_trigger_time = time.time()
 
-        robot_name = rospy.get_param('/robot_name')
+        try:
+          robot_name = rospy.get_param('/robot_name')
+        except: 
+          robot_name = "DEBUG"
+
         self.chat_trigger_pub = rospy.Publisher('/'+robot_name+'/chatbot_speech', ChatMessage, queue_size=1)
         print('/'+robot_name+'/chatbot_speech')        
 
         rospy.Subscriber("/faces", Faces, self.faces_perceived_cb)
+
+        rospy.spin()
 
     #  TRIGGERS
     def triggered_expression(self, expression_name):

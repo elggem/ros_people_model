@@ -26,6 +26,10 @@ class PeopleModel(object):
         rospy.Timer(rospy.Duration(duration), self.update_model_decay_cb)
         rospy.Timer(rospy.Duration(duration), self.publish_faces_cb)
 
+        rospy.spin()
+
+
+
     def update_model_from_feature(self, feature):
         for face in self.faces:
             feature_position = models.math.position_of_feature(feature)
